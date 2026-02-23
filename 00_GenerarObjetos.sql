@@ -37,7 +37,7 @@ END
 GO
 
 --  =================  CREACION DE TABLAS  =================
--- 1. CATEGORIA
+-- CATEGORIA
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Categoria')
 BEGIN
     CREATE TABLE ct.Categoria (
@@ -48,7 +48,7 @@ BEGIN
 END
 GO
 
--- 2. TEMPORADA
+-- TEMPORADA
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Temporada')
 BEGIN
     CREATE TABLE ct.Temporada (
@@ -59,7 +59,7 @@ BEGIN
 END
 GO
 
--- 3. PROVEEDOR
+-- PROVEEDOR
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Proveedor')
 BEGIN
     CREATE TABLE ct.Proveedor (
@@ -69,7 +69,7 @@ BEGIN
 END
 GO
 
--- 4. CAPACITADOR
+-- CAPACITADOR
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Capacitador')
 BEGIN
     CREATE TABLE ct.Capacitador (
@@ -79,7 +79,7 @@ BEGIN
 END
 GO
 
--- 5. SUCURSAL
+-- SUCURSAL
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Sucursal')
 BEGIN
     CREATE TABLE ct.Sucursal (
@@ -89,7 +89,7 @@ BEGIN
 END
 GO
 
--- 6. CLIENTE
+-- CLIENTE
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Cliente')
 BEGIN
     CREATE TABLE ct.Cliente (
@@ -99,7 +99,7 @@ BEGIN
 END
 GO
 
--- 7. VENDEDOR
+-- VENDEDOR
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Vendedor')
 BEGIN
     CREATE TABLE ct.Vendedor (
@@ -109,7 +109,7 @@ BEGIN
 END
 GO
 
--- 8. CERTIFICADO (Relación entre Vendedor y Capacitador)
+-- CERTIFICADO
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Certificado')
 BEGIN
     CREATE TABLE ct.Certificado (
@@ -121,7 +121,7 @@ BEGIN
 END
 GO
 
--- 9. PRODUCTO
+-- PRODUCTO
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Producto')
 BEGIN
     CREATE TABLE ct.Producto (
@@ -136,7 +136,7 @@ BEGIN
 END
 GO
 
--- 10. STOCK (Relación Sucursal - Producto)
+-- STOCK
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Stock')
 BEGIN
     CREATE TABLE ct.Stock (
@@ -147,7 +147,7 @@ BEGIN
 END
 GO
 
--- 11. LISTA DE PRECIO (Relación Producto - Proveedor)
+-- LISTA DE PRECIO
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Lista_Precio')
 BEGIN
     CREATE TABLE ct.Lista_Precio (
@@ -159,7 +159,7 @@ BEGIN
 END
 GO
 
--- 12. LOTE
+-- LOTE
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Lote')
 BEGIN
     CREATE TABLE ct.Lote (
@@ -174,7 +174,7 @@ BEGIN
 END
 GO
 
--- 13. VENTA
+-- VENTA
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Venta')
 BEGIN
     CREATE TABLE ct.Venta (
@@ -187,7 +187,7 @@ BEGIN
 END
 GO
 
--- 14. DETALLE VENTA (Relación Venta - Lote)
+-- DETALLE VENTA
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Detalle_Venta')
 BEGIN
     CREATE TABLE ct.Detalle_Venta (
@@ -200,3 +200,193 @@ BEGIN
 END
 GO
 
+-- Logs errores de proveedores al generar los archivos
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
+               WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'LogErroresProveedores')
+BEGIN
+    CREATE TABLE ct.LogErroresProveedores (
+        Id_Log INT IDENTITY(1,1) PRIMARY KEY,
+        Id_Proveedor INT NOT NULL FOREIGN KEY REFERENCES ct.Proveedor(Id_Proveedor),
+        Error_Desc VARCHAR(255) NOT NULL,
+        FechaRegistro DATETIME NOT NULL DEFAULT GETDATE(),
+    );
+END
+GO
+
+
+-- ==========  CREACION DE SPs  =============
+-- Importar EXCEL listas de precios de proveedores, logear errores y corregir los datos
+CREATE PROCEDURE ct.spImportarPreciosExcel_Temp
+    @RutaArchivo VARCHAR(255),
+    @IdProveedor INT
+AS
+BEGIN
+    -- Tabla temporal
+    CREATE TABLE #PreciosTemp (
+        Id_Producto VARCHAR(50),
+        Costo VARCHAR(50),
+        Fecha VARCHAR(50)
+    );
+
+    -- Carga desde Excel
+    BEGIN TRY
+        INSERT INTO #PreciosTemp (Id_Producto, Costo, Fecha)
+        SELECT Id_Producto, Costo, Fecha
+        FROM OPENROWSET('Microsoft.ACE.OLEDB.12.0',
+            'Excel 12.0;Database=' + @RutaArchivo + ';HDR=YES',
+            'SELECT Id_Producto, Costo, Fecha FROM [Hoja1$]');
+    END TRY
+    BEGIN CATCH
+        INSERT INTO ct.LogErroresProveedores (Id_Proveedor, Error_Desc)
+        VALUES (@IdProveedor, ERROR_MESSAGE(), CONCAT('Archivo Excel: ', @RutaArchivo));
+        RETURN;
+    END CATCH;
+
+    -- Corrección de datos
+    CREATE TABLE #PreciosValidados (
+        Id_Producto INT,
+        Costo DECIMAL(10,2),
+        Fecha DATE
+    );
+
+    INSERT INTO #PreciosValidados
+    SELECT TRY_CAST(Id_Producto AS INT),
+           TRY_CAST(Costo AS DECIMAL(10,2)),
+           TRY_CAST(Fecha AS DATE)
+    FROM #PreciosTemp
+    WHERE TRY_CAST(Id_Producto AS INT) IS NOT NULL
+      AND TRY_CAST(Costo AS DECIMAL(10,2)) IS NOT NULL
+      AND TRY_CAST(Fecha AS DATE) IS NOT NULL;
+
+    -- Registrar errores de validación
+    INSERT INTO ct.LogErroresProveedor (Id_Proveedor, ErrorDescripcion, FilaOriginal)
+    SELECT @IdProveedor, 'Error de validación',
+           CONCAT('Fila original -> Producto:', Id_Producto, ', Costo:', Costo, ', Fecha:', Fecha)
+    FROM #PreciosTemp
+    WHERE TRY_CAST(Id_Producto AS INT) IS NULL
+       OR TRY_CAST(Costo AS DECIMAL(10,2)) IS NULL
+       OR TRY_CAST(Fecha AS DATE) IS NULL;
+
+    -- Insertar datos corregidos
+    INSERT INTO ct.Precios_Proveedor_Corregido (Id_Producto, Costo, Fecha, Id_Proveedor)
+    SELECT Id_Producto, Costo, Fecha, @IdProveedor
+    FROM #PreciosValidados;
+END
+GO
+
+
+-- Importal CSV listas de precios de proveedores, logear errores y corregir los datos
+
+CREATE PROCEDURE ct.spImportarPreciosCSV_Temp
+    @RutaArchivo VARCHAR(255),
+    @IdProveedor INT
+AS
+BEGIN
+    CREATE TABLE #PreciosTemp (
+        Id_Producto VARCHAR(50),
+        Costo VARCHAR(50),
+        Fecha VARCHAR(50)
+    );
+
+    BEGIN TRY
+        BULK INSERT #PreciosTemp
+        FROM @RutaArchivo
+        WITH (
+            FIELDTERMINATOR = ',',
+            ROWTERMINATOR = '\n',
+            FIRSTROW = 2
+        );
+    END TRY
+    BEGIN CATCH
+        INSERT INTO ct.LogErroresProveedor (Id_Proveedor, ErrorDescripcion, FilaOriginal)
+        VALUES (@IdProveedor, ERROR_MESSAGE(), CONCAT('Archivo CSV: ', @RutaArchivo));
+        RETURN;
+    END CATCH;
+
+    -- Validación y corrección
+    CREATE TABLE #PreciosValidados (
+        Id_Producto INT,
+        Costo DECIMAL(10,2),
+        Fecha DATE
+    );
+
+    INSERT INTO #PreciosValidados
+    SELECT TRY_CAST(Id_Producto AS INT),
+           TRY_CAST(Costo AS DECIMAL(10,2)),
+           TRY_CAST(Fecha AS DATE)
+    FROM #PreciosTemp
+    WHERE TRY_CAST(Id_Producto AS INT) IS NOT NULL
+      AND TRY_CAST(Costo AS DECIMAL(10,2)) IS NOT NULL
+      AND TRY_CAST(Fecha AS DATE) IS NOT NULL;
+
+    INSERT INTO ct.LogErroresProveedores(Id_Proveedor, Error_Desc)
+    SELECT @IdProveedor, 'Error de validación',
+           CONCAT('Fila original -> Producto:', Id_Producto, ', Costo:', Costo, ', Fecha:', Fecha)
+    FROM #PreciosTemp
+    WHERE TRY_CAST(Id_Producto AS INT) IS NULL
+       OR TRY_CAST(Costo AS DECIMAL(10,2)) IS NULL
+       OR TRY_CAST(Fecha AS DATE) IS NULL;
+
+    INSERT INTO ct.Precios_Proveedor_Corregido (Id_Producto, Costo, Fecha, Id_Proveedor)
+    SELECT Id_Producto, Costo, Fecha, @IdProveedor
+    FROM #PreciosValidados;
+END
+GO
+
+-- Importal TEXTO PLANO listas de precios de proveedores, logear errores y corregir los datos
+
+CREATE PROCEDURE ct.spImportarPreciosTXT_Temp
+    @RutaArchivo VARCHAR(255),
+    @IdProveedor INT
+AS
+BEGIN
+    CREATE TABLE #PreciosTemp (
+        Id_Producto VARCHAR(50),
+        Costo VARCHAR(50),
+        Fecha VARCHAR(50)
+    );
+
+    BEGIN TRY
+        BULK INSERT #PreciosTemp
+        FROM @RutaArchivo
+        WITH (
+            FIELDTERMINATOR = '|',   -- suponemos que el texto usa |
+            ROWTERMINATOR = '\n',
+            FIRSTROW = 2
+        );
+    END TRY
+    BEGIN CATCH
+        INSERT INTO ct.LogErroresProveedores (Id_Proveedor, Error_Desc)
+        VALUES (@IdProveedor, ERROR_MESSAGE(), CONCAT('Archivo TXT: ', @RutaArchivo));
+        RETURN;
+    END CATCH;
+
+    -- Validación y corrección
+    CREATE TABLE #PreciosValidados (
+        Id_Producto INT,
+        Costo DECIMAL(10,2),
+        Fecha DATE
+    );
+
+    INSERT INTO #PreciosValidados
+    SELECT TRY_CAST(Id_Producto AS INT),
+           TRY_CAST(Costo AS DECIMAL(10,2)),
+           TRY_CAST(Fecha AS DATE)
+    FROM #PreciosTemp
+    WHERE TRY_CAST(Id_Producto AS INT) IS NOT NULL
+      AND TRY_CAST(Costo AS DECIMAL(10,2)) IS NOT NULL
+      AND TRY_CAST(Fecha AS DATE) IS NOT NULL;
+
+    INSERT INTO ct.LogErroresProveedores (Id_Proveedor, Error_Desc)
+    SELECT @IdProveedor, 'Error de validación',
+           CONCAT('Fila original -> Producto:', Id_Producto, ', Costo:', Costo, ', Fecha:', Fecha)
+    FROM #PreciosTemp
+    WHERE TRY_CAST(Id_Producto AS INT) IS NULL
+       OR TRY_CAST(Costo AS DECIMAL(10,2)) IS NULL
+       OR TRY_CAST(Fecha AS DATE) IS NULL;
+
+    INSERT INTO ct.Precios_Proveedor_Corregido (Id_Producto, Costo, Fecha, Id_Proveedor)
+    SELECT Id_Producto, Costo, Fecha, @IdProveedor
+    FROM #PreciosValidados;
+END
+GO
