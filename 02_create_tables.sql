@@ -42,6 +42,40 @@ END
 GO
 
 -- ==============================
+-- 14. STOCK
+-- ==============================
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
+               WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Stock')
+BEGIN
+    CREATE TABLE ct.Stock (
+        id_stock INT IDENTITY(1,1) PRIMARY KEY,
+        id_sucursal INT NOT NULL,
+        stock_minimo INT NOT NULL,
+        fecha_ultima_actualizacion DATETIME NOT NULL,
+       
+        CONSTRAINT FK_Stock_Sucursal 
+            FOREIGN KEY (id_sucursal) REFERENCES ct.Sucursal(id_sucursal),
+    );
+END
+GO
+
+-- ==============================
+-- 13. TEMPORADA
+-- ==============================
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
+               WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Temporada')
+BEGIN
+    CREATE TABLE ct.Temporada (
+        id_temporada INT IDENTITY(1,1) PRIMARY KEY,
+        nombre VARCHAR(50) NOT NULL,
+		descripcion VARCHAR(50) NOT NULL,
+        fecha_inicio DATE NOT NULL,
+        fecha_fin DATE NOT NULL
+    );
+END
+GO
+
+-- ==============================
 -- 2. CATEGORIA
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
@@ -55,8 +89,26 @@ BEGIN
 END
 GO
 
+
 -- ==============================
--- 3. PRODUCTO
+-- 3. PROVEEDOR
+-- ==============================
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
+               WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Proveedor')
+BEGIN
+    CREATE TABLE ct.Proveedor (
+        id_proveedor INT IDENTITY(1,1) PRIMARY KEY,
+        nombre VARCHAR(100) NOT NULL,
+		apellido VARCHAR(100) NOT NULL,
+        telefono VARCHAR(20),
+        cuit VARCHAR(100),
+		CONSTRAINT ck_cuit CHECK (cuit LIKE '[0-9][0-9]-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9]')
+    );
+END
+GO
+
+-- ==============================
+-- 4. PRODUCTO
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
                WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Producto')
@@ -83,22 +135,6 @@ BEGIN
 END
 GO
 
--- ==============================
--- 4. PROVEEDOR
--- ==============================
-IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
-               WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Proveedor')
-BEGIN
-    CREATE TABLE ct.Proveedor (
-        id_proveedor INT IDENTITY(1,1) PRIMARY KEY,
-        nombre VARCHAR(100) NOT NULL,
-		apellido VARCHAR(100) NOT NULL,
-        telefono VARCHAR(20),
-        cuit VARCHAR(100),
-		CONSTRAINT ck_cuit CHECK (cuit LIKE '[0-9][0-9]-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9]')
-    );
-END
-GO
 
 -- ==============================
 -- 5. LISTA_PRECIO
@@ -139,7 +175,7 @@ BEGIN
         fecha_vencimiento DATE NOT NULL,
 
 		CONSTRAINT PK_Lote 
-			PRIMARY KEY (id_producto, id_lote),
+			PRIMARY KEY (id_lote , id_producto ),
         FOREIGN KEY (id_producto) REFERENCES ct.Producto(id_producto),
     );
 END
@@ -165,6 +201,37 @@ BEGIN
 END
 GO
 
+
+-- ==============================
+-- 9. CAPACITADOR
+-- ==============================
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
+               WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Capacitador')
+BEGIN
+    CREATE TABLE ct.Capacitador (
+        id_capacitador INT IDENTITY(1,1) PRIMARY KEY,
+        nombre VARCHAR(100) NOT NULL,
+        apellido VARCHAR(100) NOT NULL
+    );
+END
+GO
+
+
+-- ==============================
+-- 10. CERTIFICADO
+-- ==============================
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
+               WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Certificado')
+BEGIN
+    CREATE TABLE ct.Certificado (
+        id_certificado INT IDENTITY(1,1) PRIMARY KEY,
+        id_capacitador INT NOT NULL,
+        fecha_capacitacion DATE NOT NULL,
+        FOREIGN KEY (id_capacitador) REFERENCES ct.Capacitador(id_capacitador)
+    );
+END
+GO
+
 -- ==============================
 -- 8. VENDEDOR
 -- ==============================
@@ -186,34 +253,7 @@ BEGIN
 END
 GO
 
--- ==============================
--- 9. CAPACITADOR
--- ==============================
-IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
-               WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Capacitador')
-BEGIN
-    CREATE TABLE ct.Capacitador (
-        id_capacitador INT IDENTITY(1,1) PRIMARY KEY,
-        nombre VARCHAR(100) NOT NULL,
-        apellido VARCHAR(100) NOT NULL
-    );
-END
-GO
 
--- ==============================
--- 10. CERTIFICADO
--- ==============================
-IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
-               WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Certificado')
-BEGIN
-    CREATE TABLE ct.Certificado (
-        id_certificado INT IDENTITY(1,1) PRIMARY KEY,
-        id_capacitador INT NOT NULL,
-        fecha_capacitacion DATE NOT NULL,
-        FOREIGN KEY (id_capacitador) REFERENCES ct.Capacitador(id_capacitador)
-    );
-END
-GO
 
 -- ==============================
 -- 11. VENTA
@@ -234,7 +274,7 @@ BEGIN
 			CHECK (modalidad IN ('presencial','domicilio')),
 		CONSTRAINT CK_canal_venta
 			CHECK (modalidad IN ('propio','plataforma')),
-        FOREIGN KEY (id_vendedor) REFERENCES ct.Vendedor(id_vendedor),
+        FOREIGN KEY (id_vendedor, id_sucursal) REFERENCES ct.Vendedor(id_vendedor, id_sucursal),
 		FOREIGN KEY (id_sucursal) REFERENCES ct.Sucursal(id_sucursal),
         FOREIGN KEY (id_cliente) REFERENCES ct.Cliente(id_cliente)
     );
@@ -260,45 +300,11 @@ BEGIN
     CONSTRAINT FK_DetalleVenta_Venta
         FOREIGN KEY (id_venta) REFERENCES ct.Venta(id_venta),
 
-    CONSTRAINT FK_DetalleVenta_Lote
-        FOREIGN KEY (id_lote) REFERENCES ct.Lote(id_lote)
-
-	CONSTRAINT FK_DetalleVenta_Lote_Producto
-        FOREIGN KEY (id_producto) REFERENCES ct.Producto(id_producto)
+    FOREIGN KEY (id_lote, id_producto)
+		REFERENCES ct.Lote(id_lote, id_producto)
 );
 END
 GO
 
--- ==============================
--- 13. TEMPORADA
--- ==============================
-IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
-               WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Temporada')
-BEGIN
-    CREATE TABLE ct.Temporada (
-        id_temporada INT IDENTITY(1,1) PRIMARY KEY,
-        nombre VARCHAR(50) NOT NULL,
-		descripcion VARCHAR(50) NOT NULL,
-        fecha_inicio DATE NOT NULL,
-        fecha_fin DATE NOT NULL
-    );
-END
-GO
 
--- ==============================
--- 14. STOCK
--- ==============================
-IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
-               WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Stock')
-BEGIN
-    CREATE TABLE ct.Stock (
-        id_stock INT IDENTITY(1,1) PRIMARY KEY,
-        id_sucursal INT NOT NULL,
-        stock_minimo INT NOT NULL,
-        fecha_ultima_actualizacion DATETIME NOT NULL,
-       
-        CONSTRAINT FK_Stock_Sucursal 
-            FOREIGN KEY (id_sucursal) REFERENCES ct.Sucursal(id_sucursal),
-    );
-END
-GO
+
