@@ -529,32 +529,37 @@ GO
 -- ==============================
 -- 21. PRECIO MAYORISTA (FINAL)
 -- ==============================
-IF NOT EXISTS (
-    SELECT * FROM INFORMATION_SCHEMA.TABLES 
-    WHERE TABLE_SCHEMA = 'ct' 
-    AND TABLE_NAME = 'PrecioMayorista'
-)
+
+
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
+               WHERE TABLE_SCHEMA = 'staging' AND TABLE_NAME = 'PrecioMayorista')
 BEGIN
     CREATE TABLE ct.PrecioMayorista (
-        id_precio INT IDENTITY PRIMARY KEY,
-        fecha DATE NOT NULL,
-        tipo_producto VARCHAR(20) NOT NULL,  -- fruta / hortaliza
-        especie VARCHAR(150) NOT NULL,
-        variedad VARCHAR(150) NULL,
-        procedencia VARCHAR(150) NULL,
-        tamanio VARCHAR(100) NULL,
+    id_precio INT IDENTITY PRIMARY KEY,
 
-        precio_mayorista DECIMAL(18,2) NULL,
-        precio_modal DECIMAL(18,2) NULL,
-        precio_minimo DECIMAL(18,2) NULL,
+    fecha DATE NOT NULL,
+    tipo_producto VARCHAR(20) NOT NULL,  -- fruta / hortaliza
 
-        precio_mayorista_kg DECIMAL(18,2) NULL,
-        precio_modal_kg DECIMAL(18,2) NULL,
-        precio_minimo_kg DECIMAL(18,2) NULL,
+    especie VARCHAR(150) NOT NULL,       -- ESP
+    variedad VARCHAR(150) NULL,          -- VAR
+    procedencia VARCHAR(150) NULL,       -- PROC
+    envase VARCHAR(50) NULL,             -- ENV
+    kg VARCHAR(50) NULL,                 -- KG
+    calidad VARCHAR(50) NULL,            -- CAL
+    tamanio VARCHAR(100) NULL,           -- TAM
+    grado VARCHAR(50) NULL,              -- GRADO
 
-        CONSTRAINT UQ_precio
-            UNIQUE (fecha, tipo_producto, especie, variedad, procedencia)
-    );
+    precio_mayorista DECIMAL(18,2) NULL,         -- MA
+    precio_modal DECIMAL(18,2) NULL,             -- MO
+    precio_minimo DECIMAL(18,2) NULL,            -- MI
+
+    precio_mayorista_kg DECIMAL(18,2) NULL,      -- MAPK
+    precio_modal_kg DECIMAL(18,2) NULL,          -- MOPK
+    precio_minimo_kg DECIMAL(18,2) NULL,         -- MIPK
+
+    --CONSTRAINT UQ_precio
+    --    UNIQUE (fecha, tipo_producto, especie, variedad, procedencia, tamanio, grado)
+);
 END
 GO
 
@@ -562,29 +567,31 @@ GO
 -- ==============================
 -- 22. Staging PreciosRaw
 -- ==============================
-IF NOT EXISTS (
-    SELECT * FROM INFORMATION_SCHEMA.TABLES 
-    WHERE TABLE_SCHEMA = 'staging' 
-    AND TABLE_NAME = 'PreciosRaw'
-)
+
+
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
+               WHERE TABLE_SCHEMA = 'staging' AND TABLE_NAME = 'PreciosRaw')
 BEGIN
     CREATE TABLE staging.PreciosRaw (
-        especie VARCHAR(200),
-        variedad VARCHAR(200),
-        procedencia VARCHAR(200),
-        en_kg VARCHAR(50),
-        tamanio VARCHAR(100),
-        grupo VARCHAR(50),
-        precio_mayorista VARCHAR(50),
-        precio_modal VARCHAR(50),
-        precio_minimo VARCHAR(50),
-        precio_mayorista_kg VARCHAR(50),
-        precio_modal_kg VARCHAR(50),
-        precio_minimo_kg VARCHAR(50)
-    );
+		ESP VARCHAR(200),
+		VAR VARCHAR(200),
+		PROCEDENCIA  VARCHAR(200),
+		ENV VARCHAR(50),
+		KG VARCHAR(50),
+		CAL VARCHAR(50),
+		TAM VARCHAR(100),
+		GRADO VARCHAR(50),
+
+		MA VARCHAR(50),
+		MO VARCHAR(50),
+		MI VARCHAR(50),
+
+		MAPK VARCHAR(50),
+		MOPK VARCHAR(50),
+		MIPK VARCHAR(50)
+	);
 END
 GO
-
 
 -- ==============================
 -- 23. Staging ErroresPrecios
