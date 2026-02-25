@@ -36,11 +36,10 @@ BEGIN
     CREATE TABLE ct.Sucursal (
         id_sucursal INT IDENTITY(1,1) PRIMARY KEY,
         nombre VARCHAR(100) NOT NULL,
-        direccion VARCHAR(200) NOT NULL,
+        direccion VARCHAR(200) NOT NULL
     );
 END
 GO
-
 -- ==============================
 -- 2. STOCK
 -- ==============================
@@ -54,7 +53,7 @@ BEGIN
         fecha_ultima_actualizacion DATETIME NOT NULL,
        
         CONSTRAINT FK_Stock_Sucursal 
-            FOREIGN KEY (id_sucursal) REFERENCES ct.Sucursal(id_sucursal),
+            FOREIGN KEY (id_sucursal) REFERENCES ct.Sucursal(id_sucursal)
     );
 END
 GO
@@ -176,7 +175,7 @@ BEGIN
 
 		CONSTRAINT PK_Lote 
 			PRIMARY KEY (id_lote , id_producto ),
-        FOREIGN KEY (id_producto) REFERENCES ct.Producto(id_producto),
+        FOREIGN KEY (id_producto) REFERENCES ct.Producto(id_producto)
     );
 END
 GO
@@ -196,7 +195,7 @@ BEGIN
 		tipo VARCHAR(100),
 
 		CONSTRAINT CK_tipo_cliente
-			CHECK (tipo IN ('registrado','consumidor final')),
+			CHECK (tipo IN ('registrado','consumidor final'))
     );
 END
 GO
@@ -273,7 +272,7 @@ BEGIN
 		CONSTRAINT CK_modalidad_venta
 			CHECK (modalidad IN ('presencial','domicilio')),
 		CONSTRAINT CK_canal_venta
-			CHECK (modalidad IN ('propio','plataforma')),
+			CHECK (canal IN ('propio','plataforma')),
         FOREIGN KEY (id_vendedor, id_sucursal) REFERENCES ct.Vendedor(id_vendedor, id_sucursal),
 		FOREIGN KEY (id_sucursal) REFERENCES ct.Sucursal(id_sucursal),
         FOREIGN KEY (id_cliente) REFERENCES ct.Cliente(id_cliente)

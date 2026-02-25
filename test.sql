@@ -23,13 +23,20 @@ JOIN sys.schemas s ON t.schema_id = s.schema_id;
 
 EXEC sp_executesql @sql;
 
--- 2️⃣ Eliminar todas las tablas del schema ct
-SET @sql = '';
 
-SELECT @sql += 
-    'DROP TABLE [' + s.name + '].[' + t.name + '];' + CHAR(13)
-FROM sys.tables t
-JOIN sys.schemas s ON t.schema_id = s.schema_id
-WHERE s.name = 'ct';
 
-EXEC sp_executesql @sql;
+--RECREAR LA BASE:
+USE master;
+GO
+
+IF EXISTS (SELECT 1 FROM sys.databases WHERE name = 'Com2343')
+BEGIN
+    ALTER DATABASE Com2343 SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE Com2343;
+END
+GO
+
+CREATE DATABASE Com2343;
+GO
+
+
