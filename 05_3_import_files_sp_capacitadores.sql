@@ -1,5 +1,4 @@
 ﻿/*
-=========================================================
 Universidad Nacional de La Matanza
 Materia: Base de Datos Aplicadas - Comisión 2343 Verano
 Grupo:
@@ -25,7 +24,6 @@ staging.MermasRaw
 csp.ProcesarMermas
      ↓
 ct.Merma   ← (tabla final histórica)
-=========================================================
 */
 
 USE Com2343;

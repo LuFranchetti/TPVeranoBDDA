@@ -1,5 +1,4 @@
 /*
-=========================================================
 Universidad Nacional de La Matanza
 Materia: Base de Datos Aplicadas - Comisión 2343 Verano
 Grupo:
@@ -8,7 +7,6 @@ Grupo:
 
 Archivo: Testing de Stored Procedures
 Base de datos: Com2343
-=========================================================
 */
 
 USE Com2343
