@@ -12,7 +12,7 @@
 
 USE Com2343;
 
-DECLARE @sql NVARCHAR(MAX) = '';
+DECLARE @sql VARCHAR(MAX) = '';
 
 -- 1️⃣ Eliminar todas las foreign keys
 SELECT @sql += 
