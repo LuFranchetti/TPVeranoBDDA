@@ -526,3 +526,105 @@ BEGIN
 END
 GO
 
+-- ==============================
+-- 21. PRECIO MAYORISTA (FINAL)
+-- ==============================
+IF NOT EXISTS (
+    SELECT * FROM INFORMATION_SCHEMA.TABLES 
+    WHERE TABLE_SCHEMA = 'ct' 
+    AND TABLE_NAME = 'PrecioMayorista'
+)
+BEGIN
+    CREATE TABLE ct.PrecioMayorista (
+        id_precio INT IDENTITY PRIMARY KEY,
+        fecha DATE NOT NULL,
+        tipo_producto VARCHAR(20) NOT NULL,  -- fruta / hortaliza
+        especie VARCHAR(150) NOT NULL,
+        variedad VARCHAR(150) NULL,
+        procedencia VARCHAR(150) NULL,
+        tamanio VARCHAR(100) NULL,
+
+        precio_mayorista DECIMAL(18,2) NULL,
+        precio_modal DECIMAL(18,2) NULL,
+        precio_minimo DECIMAL(18,2) NULL,
+
+        precio_mayorista_kg DECIMAL(18,2) NULL,
+        precio_modal_kg DECIMAL(18,2) NULL,
+        precio_minimo_kg DECIMAL(18,2) NULL,
+
+        CONSTRAINT UQ_precio
+            UNIQUE (fecha, tipo_producto, especie, variedad, procedencia)
+    );
+END
+GO
+
+
+-- ==============================
+-- 22. Staging PreciosRaw
+-- ==============================
+IF NOT EXISTS (
+    SELECT * FROM INFORMATION_SCHEMA.TABLES 
+    WHERE TABLE_SCHEMA = 'staging' 
+    AND TABLE_NAME = 'PreciosRaw'
+)
+BEGIN
+    CREATE TABLE staging.PreciosRaw (
+        especie VARCHAR(200),
+        variedad VARCHAR(200),
+        procedencia VARCHAR(200),
+        en_kg VARCHAR(50),
+        tamanio VARCHAR(100),
+        grupo VARCHAR(50),
+        precio_mayorista VARCHAR(50),
+        precio_modal VARCHAR(50),
+        precio_minimo VARCHAR(50),
+        precio_mayorista_kg VARCHAR(50),
+        precio_modal_kg VARCHAR(50),
+        precio_minimo_kg VARCHAR(50)
+    );
+END
+GO
+
+
+-- ==============================
+-- 23. Staging ErroresPrecios
+-- ==============================
+IF NOT EXISTS (
+    SELECT * FROM INFORMATION_SCHEMA.TABLES 
+    WHERE TABLE_SCHEMA = 'staging' 
+    AND TABLE_NAME = 'ErroresPrecios'
+)
+BEGIN
+    CREATE TABLE staging.ErroresPrecios (
+        fecha DATETIME DEFAULT GETDATE(),
+        descripcion VARCHAR(500),
+        especie VARCHAR(200),
+        variedad VARCHAR(200)
+    );
+END
+GO
+
+
+-- ==============================
+-- 24. Staging LogImportacionPrecios
+-- ==============================
+IF NOT EXISTS (
+    SELECT * FROM INFORMATION_SCHEMA.TABLES 
+    WHERE TABLE_SCHEMA = 'staging' 
+    AND TABLE_NAME = 'LogImportacionPrecios'
+)
+BEGIN
+    CREATE TABLE staging.LogImportacionPrecios(
+        id_log INT IDENTITY PRIMARY KEY,
+        fecha_importacion DATETIME DEFAULT GETDATE(),
+        fecha_archivo DATE,
+        tipo_producto VARCHAR(20),
+        registros_staging INT,
+        registros_actualizados INT,
+        registros_insertados INT,
+        registros_error INT
+    );
+END
+GO
+
+

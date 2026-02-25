@@ -133,3 +133,39 @@ FROM staging.ErroresCapacitadores;
 SELECT *
 FROM staging.LogImportacionCapacitadores
 ORDER BY id_log DESC;
+
+
+-- ==============================
+-- FRUTAS Y HORTALIZAS
+
+-- ==============================
+
+--ejecucion de sp para las frutas
+EXEC csp.ProcesarPrecios 
+    @fecha = '2026-02-02',
+    @tipo_producto = 'fruta';
+GO
+
+--ejecucion de sp para las hortalizas
+EXEC csp.ProcesarPrecios 
+    @fecha = '2026-02-02',
+    @tipo_producto = 'hortaliza';
+GO
+
+
+-- Ver staging
+SELECT COUNT(*) FROM staging.PreciosRaw;
+
+-- Ver tabla final
+SELECT TOP 20 *
+FROM ct.PrecioMayorista
+ORDER BY id_precio DESC;
+
+-- Ver errores
+SELECT *
+FROM staging.ErroresPrecios;
+
+-- Ver log
+SELECT *
+FROM staging.LogImportacionPrecios
+ORDER BY id_log DESC;
