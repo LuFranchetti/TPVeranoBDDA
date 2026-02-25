@@ -42,7 +42,7 @@ END
 GO
 
 -- ==============================
--- 14. STOCK
+-- 2. STOCK
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
                WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Stock')
@@ -60,7 +60,7 @@ END
 GO
 
 -- ==============================
--- 13. TEMPORADA
+-- 3. TEMPORADA
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
                WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Temporada')
@@ -76,7 +76,7 @@ END
 GO
 
 -- ==============================
--- 2. CATEGORIA
+-- 4. CATEGORIA
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
                WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Categoria')
@@ -91,7 +91,7 @@ GO
 
 
 -- ==============================
--- 3. PROVEEDOR
+-- 5. PROVEEDOR
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
                WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Proveedor')
@@ -108,7 +108,7 @@ END
 GO
 
 -- ==============================
--- 4. PRODUCTO
+-- 6. PRODUCTO
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
                WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Producto')
@@ -137,7 +137,7 @@ GO
 
 
 -- ==============================
--- 5. LISTA_PRECIO
+-- 7. LISTA_PRECIO
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
                WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'ListaPrecio')
@@ -161,7 +161,7 @@ END
 GO
 
 -- ==============================
--- 6. LOTE
+-- 8. LOTE
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
                WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Lote')
@@ -182,7 +182,7 @@ END
 GO
 
 -- ==============================
--- 7. CLIENTE
+-- 9. CLIENTE
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
                WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Cliente')
@@ -203,7 +203,7 @@ GO
 
 
 -- ==============================
--- 9. CAPACITADOR
+-- 10. CAPACITADOR
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
                WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Capacitador')
@@ -218,7 +218,7 @@ GO
 
 
 -- ==============================
--- 10. CERTIFICADO
+-- 11. CERTIFICADO
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
                WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Certificado')
@@ -233,7 +233,7 @@ END
 GO
 
 -- ==============================
--- 8. VENDEDOR
+-- 12. VENDEDOR
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
                WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Vendedor')
@@ -256,7 +256,7 @@ GO
 
 
 -- ==============================
--- 11. VENTA
+-- 13. VENTA
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
                WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Venta')
@@ -282,7 +282,7 @@ END
 GO
 
 -- ==============================
--- 12. DETALLE_VENTA
+-- 14. DETALLE_VENTA
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
                WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'DetalleVenta')
