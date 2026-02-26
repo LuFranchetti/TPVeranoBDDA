@@ -1396,3 +1396,40 @@ BEGIN
     (@fecha, @tipo_producto, @especie, @precio_mayorista);
 END
 GO
+
+CREATE OR ALTER PROCEDURE csp.AltaMerma
+    @id_producto INT,
+    @id_sucursal INT,
+    @fecha DATE,
+    @cantidad INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF @cantidad <= 0
+    BEGIN
+        RAISERROR('La cantidad debe ser mayor a 0.',16,1);
+        RETURN;
+    END;
+
+    IF EXISTS (
+        SELECT 1 
+        FROM ct.Merma
+        WHERE id_producto = @id_producto
+          AND id_sucursal = @id_sucursal
+          AND fecha = @fecha
+    )
+    BEGIN
+        UPDATE ct.Merma
+        SET cantidad = cantidad + @cantidad
+        WHERE id_producto = @id_producto
+          AND id_sucursal = @id_sucursal
+          AND fecha = @fecha;
+    END
+    ELSE
+    BEGIN
+        INSERT INTO ct.Merma(id_producto, id_sucursal, fecha, cantidad)
+        VALUES(@id_producto, @id_sucursal, @fecha, @cantidad);
+    END
+END
+GO

@@ -216,3 +216,48 @@ BEGIN
     ) AS TablaPivot;
 END
 GO
+
+
+
+USE Com2343;
+GO
+
+/*
+=========================================================
+SP: csp.InformeFaltantes
+Descripción:
+Indica qué productos deben reponerse comparando
+el stock actual (suma de lotes) contra el
+stock mínimo configurado por sucursal.
+
+Criterio:
+Si stock_actual < stock_minimo → Reponer.
+=========================================================
+*/
+CREATE OR ALTER PROCEDURE csp.InformeFaltantes
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT
+        s.nombre AS Sucursal,
+        p.nombre AS Producto,
+        ISNULL(SUM(l.cantidad_inicial), 0) AS Stock_Actual,
+        st.stock_minimo AS Stock_Minimo,
+        (st.stock_minimo - ISNULL(SUM(l.cantidad_inicial), 0)) AS Cantidad_A_Reponer
+    FROM ct.Stock st
+    INNER JOIN ct.Sucursal s
+        ON st.id_sucursal = s.id_sucursal
+    INNER JOIN ct.Producto p
+        ON p.id_stock = st.id_stock
+    LEFT JOIN ct.Lote l
+        ON l.id_producto = p.id_producto
+    GROUP BY
+        s.nombre,
+        p.nombre,
+        st.stock_minimo
+    HAVING ISNULL(SUM(l.cantidad_inicial), 0) < st.stock_minimo;
+END
+GO
+
+

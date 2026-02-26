@@ -192,5 +192,32 @@ EXEC csp.RankingProveedores;
 -- Probar el Reporte de Matriz de desperdicios
 =========================================================
 */
+DECLARE @fechaMerma DATE;
+SET @fechaMerma = GETDATE();
+
+EXEC csp.AltaMerma
+    @id_producto = 1,
+    @id_sucursal = 1,
+    @fecha = @fechaMerma,
+    @cantidad = 25;
+
+EXEC csp.AltaMerma
+    @id_producto = 1,
+    @id_sucursal = 1,
+    @fecha = @fechaMerma,
+    @cantidad = 15;
 
 
+EXEC csp.MatrizDesperdicio;
+
+
+/*
+=========================================================
+-- Probar el Reporte de Informe de faltantes
+=========================================================
+*/
+UPDATE ct.Stock
+SET stock_minimo = 200
+WHERE id_sucursal = 1;
+
+EXEC csp.InformeFaltantes;
