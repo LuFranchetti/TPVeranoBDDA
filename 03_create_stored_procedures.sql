@@ -1286,6 +1286,7 @@ Validaciones:
 - Precio > 0
 =========================================================
 */
+/*
 CREATE OR ALTER PROCEDURE csp.AltaDetalleVenta
     @id_venta INT,
     @id_lote INT,
@@ -1322,6 +1323,72 @@ BEGIN
     VALUES(@id_venta, @id_lote, @id_producto, @cantidad, @precio_unitario);
 END
 GO
+*/
+
+CREATE OR ALTER PROCEDURE csp.AltaDetalleVenta
+    @id_venta INT,
+    @id_lote INT,
+    @id_producto INT,
+    @cantidad INT,
+    @precio_unitario DECIMAL(10,2)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @errores NVARCHAR(MAX) = '';
+    DECLARE @fechaVenc DATE;
+    DECLARE @stockDisponible INT;
+
+    -- Validar venta
+    IF NOT EXISTS (SELECT 1 FROM ct.Venta WHERE id_venta = @id_venta)
+        SET @errores += 'La venta no existe.' + CHAR(13);
+
+    -- Validar lote
+    IF NOT EXISTS (
+        SELECT 1 FROM ct.Lote
+        WHERE id_lote = @id_lote
+        AND id_producto = @id_producto)
+        SET @errores += 'El lote no existe.' + CHAR(13);
+
+    -- Validar cantidad
+    IF (@cantidad <= 0)
+        SET @errores += 'La cantidad debe ser mayor a 0.' + CHAR(13);
+
+    -- Obtener fecha vencimiento y stock
+    SELECT 
+        @fechaVenc = fecha_vencimiento,
+        @stockDisponible = cantidad_inicial
+    FROM ct.Lote
+    WHERE id_lote = @id_lote
+      AND id_producto = @id_producto;
+
+    -- Validar vencimiento
+    IF (@fechaVenc < GETDATE())
+        SET @errores += 'No se puede vender un producto vencido.' + CHAR(13);
+
+    -- Validar stock
+    IF (@cantidad > @stockDisponible)
+        SET @errores += 'Stock insuficiente en el lote.' + CHAR(13);
+
+    IF (@errores <> '')
+    BEGIN
+        RAISERROR(@errores,16,1);
+        RETURN;
+    END;
+
+    -- Insertar detalle
+    INSERT INTO ct.DetalleVenta
+    VALUES(@id_venta, @id_lote, @id_producto, @cantidad, @precio_unitario);
+
+    -- Descontar stock
+    UPDATE ct.Lote
+    SET cantidad_inicial = cantidad_inicial - @cantidad
+    WHERE id_lote = @id_lote
+      AND id_producto = @id_producto;
+
+END
+GO
+
 
 /*
 =========================================================
