@@ -974,12 +974,18 @@ Validaciones:
 =========================================================
 */
 CREATE OR ALTER PROCEDURE csp.AltaCapacitador
+    @numero_registro VARCHAR(50),
     @nombre VARCHAR(100),
-    @apellido VARCHAR(100)
+    @apellido VARCHAR(100),
+    @telefono VARCHAR(50) = NULL,
+    @mail VARCHAR(150) = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
     DECLARE @errores NVARCHAR(MAX) = '';
+
+    IF (@numero_registro IS NULL OR LTRIM(RTRIM(@numero_registro)) = '')
+        SET @errores += 'El número de registro es obligatorio.' + CHAR(13);
 
     IF (@nombre IS NULL OR LTRIM(RTRIM(@nombre)) = '')
         SET @errores += 'El nombre es obligatorio.' + CHAR(13);
@@ -987,37 +993,58 @@ BEGIN
     IF (@apellido IS NULL OR LTRIM(RTRIM(@apellido)) = '')
         SET @errores += 'El apellido es obligatorio.' + CHAR(13);
 
+    IF EXISTS (SELECT 1 FROM ct.Capacitador WHERE numero_registro = @numero_registro)
+        SET @errores += 'Ya existe un capacitador con ese número de registro.' + CHAR(13);
+
     IF (@errores <> '')
     BEGIN
         RAISERROR(@errores,16,1);
         RETURN;
     END;
 
-    INSERT INTO ct.Capacitador(nombre, apellido)
-    VALUES(@nombre, @apellido);
+    INSERT INTO ct.Capacitador
+    (numero_registro, nombre, apellido, telefono, mail)
+    VALUES
+    (@numero_registro, @nombre, @apellido, @telefono, @mail);
 END
 GO
 
 
 CREATE OR ALTER PROCEDURE csp.ModificarCapacitador
     @id_capacitador INT,
+    @numero_registro VARCHAR(50),
     @nombre VARCHAR(100),
-    @apellido VARCHAR(100)
+    @apellido VARCHAR(100),
+    @telefono VARCHAR(50) = NULL,
+    @mail VARCHAR(150) = NULL
 AS
 BEGIN
+    DECLARE @errores NVARCHAR(MAX) = '';
+
     IF NOT EXISTS (SELECT 1 FROM ct.Capacitador WHERE id_capacitador = @id_capacitador)
+        SET @errores += 'El capacitador no existe.' + CHAR(13);
+
+    IF EXISTS (
+        SELECT 1 FROM ct.Capacitador 
+        WHERE numero_registro = @numero_registro 
+        AND id_capacitador <> @id_capacitador)
+        SET @errores += 'Ya existe otro capacitador con ese número de registro.' + CHAR(13);
+
+    IF (@errores <> '')
     BEGIN
-        RAISERROR('El capacitador no existe.',16,1);
+        RAISERROR(@errores,16,1);
         RETURN;
     END;
 
     UPDATE ct.Capacitador
-    SET nombre = @nombre,
-        apellido = @apellido
+    SET numero_registro = @numero_registro,
+        nombre = @nombre,
+        apellido = @apellido,
+        telefono = @telefono,
+        mail = @mail
     WHERE id_capacitador = @id_capacitador;
 END
 GO
-
 
 CREATE OR ALTER PROCEDURE csp.BajaCapacitador
     @id_capacitador INT
@@ -1313,5 +1340,59 @@ BEGIN
 
     DELETE FROM ct.DetalleVenta
     WHERE id_venta = @id_venta;
+END
+GO
+
+
+USE Com2343;
+GO
+
+/*
+=========================================================
+SP: csp.AltaPrecioMayorista
+Descripción:
+Permite registrar un precio mayorista histórico
+para una especie determinada.
+
+Validaciones:
+- Fecha no puede ser futura
+- Tipo producto debe ser 'fruta' o 'hortaliza'
+- Especie obligatoria
+- Precio mayorista > 0
+=========================================================
+*/
+CREATE OR ALTER PROCEDURE csp.AltaPrecioMayorista
+    @fecha DATE,
+    @tipo_producto VARCHAR(20),
+    @especie VARCHAR(150),
+    @precio_mayorista DECIMAL(18,2)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @errores NVARCHAR(MAX) = '';
+
+    IF (@fecha > GETDATE())
+        SET @errores += 'La fecha no puede ser futura.' + CHAR(13);
+
+    IF (@tipo_producto NOT IN ('fruta','hortaliza'))
+        SET @errores += 'Tipo de producto inválido.' + CHAR(13);
+
+    IF (@especie IS NULL OR LTRIM(RTRIM(@especie)) = '')
+        SET @errores += 'La especie es obligatoria.' + CHAR(13);
+
+    IF (@precio_mayorista <= 0)
+        SET @errores += 'El precio debe ser mayor a 0.' + CHAR(13);
+
+    IF (@errores <> '')
+    BEGIN
+        RAISERROR(@errores,16,1);
+        RETURN;
+    END;
+
+    INSERT INTO ct.PrecioMayorista
+    (fecha, tipo_producto, especie, precio_mayorista)
+    VALUES
+    (@fecha, @tipo_producto, @especie, @precio_mayorista);
 END
 GO
