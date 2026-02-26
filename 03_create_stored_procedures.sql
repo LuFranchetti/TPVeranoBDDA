@@ -20,11 +20,10 @@ GO
 -- BORRAR TODOS LOS STORED PROCEDURES DEL SCHEMA CSP
 ---------------------------------------------------------------------
 
-<<<<<<< HEAD
+
 DECLARE @sql VARCHAR(MAX) = '';
-=======
-DECLARE @sql NVARCHAR(MAX) = '';
->>>>>>> 2a11e10e3e0e3cedf2f55bc0f90981727e1eb00e
+
+
 
 SELECT @sql += 'DROP PROCEDURE csp.' + name + ';' + CHAR(13)
 FROM sys.procedures
@@ -57,11 +56,9 @@ CREATE OR ALTER PROCEDURE csp.AltaSucursal
 AS
 BEGIN
     SET NOCOUNT ON;
-<<<<<<< HEAD
+
     DECLARE @errores VARCHAR(MAX) = '';
-=======
-    DECLARE @errores NVARCHAR(MAX) = '';
->>>>>>> 2a11e10e3e0e3cedf2f55bc0f90981727e1eb00e
+    
 
     IF (@nombre IS NULL OR LTRIM(RTRIM(@nombre)) = '')
         SET @errores += 'El nombre es obligatorio.' + CHAR(13);
@@ -102,11 +99,11 @@ CREATE OR ALTER PROCEDURE csp.ModificarSucursal
 AS
 BEGIN
     SET NOCOUNT ON;
-<<<<<<< HEAD
+
     DECLARE @errores VARCHAR(MAX) = '';
-=======
-    DECLARE @errores NVARCHAR(MAX) = '';
->>>>>>> 2a11e10e3e0e3cedf2f55bc0f90981727e1eb00e
+
+   
+
 
     IF NOT EXISTS (SELECT 1 FROM ct.Sucursal WHERE id_sucursal = @id_sucursal)
         SET @errores += 'La sucursal indicada no existe.' + CHAR(13);
@@ -146,11 +143,9 @@ CREATE OR ALTER PROCEDURE csp.BajaSucursal
 AS
 BEGIN
     SET NOCOUNT ON;
-<<<<<<< HEAD
+
     DECLARE @errores VARCHAR(MAX) = '';
-=======
-    DECLARE @errores NVARCHAR(MAX) = '';
->>>>>>> 2a11e10e3e0e3cedf2f55bc0f90981727e1eb00e
+    
 
     IF NOT EXISTS (SELECT 1 FROM ct.Sucursal WHERE id_sucursal = @id_sucursal)
         SET @errores += 'La sucursal indicada no existe.' + CHAR(13);
@@ -190,11 +185,10 @@ CREATE OR ALTER PROCEDURE csp.AltaStock
 AS
 BEGIN
     SET NOCOUNT ON;
-<<<<<<< HEAD
+
     DECLARE @errores VARCHAR(MAX) = '';
-=======
-    DECLARE @errores NVARCHAR(MAX) = '';
->>>>>>> 2a11e10e3e0e3cedf2f55bc0f90981727e1eb00e
+
+
 
     IF NOT EXISTS (SELECT 1 FROM ct.Sucursal WHERE id_sucursal = @id_sucursal)
         SET @errores += 'La sucursal indicada no existe.' + CHAR(13);
@@ -232,11 +226,11 @@ CREATE OR ALTER PROCEDURE csp.ModificarStock
 AS
 BEGIN
     SET NOCOUNT ON;
-<<<<<<< HEAD
+
     DECLARE @errores VARCHAR(MAX) = '';
-=======
-    DECLARE @errores NVARCHAR(MAX) = '';
->>>>>>> 2a11e10e3e0e3cedf2f55bc0f90981727e1eb00e
+
+   
+
 
     IF NOT EXISTS (SELECT 1 FROM ct.Stock WHERE id_stock = @id_stock)
         SET @errores += 'El registro de stock indicado no existe.' + CHAR(13);
@@ -271,11 +265,11 @@ CREATE OR ALTER PROCEDURE csp.BajaStock
 AS
 BEGIN
     SET NOCOUNT ON;
-<<<<<<< HEAD
+
     DECLARE @errores VARCHAR(MAX) = '';
-=======
-    DECLARE @errores NVARCHAR(MAX) = '';
->>>>>>> 2a11e10e3e0e3cedf2f55bc0f90981727e1eb00e
+
+  
+
 
     IF NOT EXISTS (SELECT 1 FROM ct.Stock WHERE id_stock = @id_stock)
         SET @errores += 'El registro de stock indicado no existe.' + CHAR(13);
@@ -312,11 +306,11 @@ CREATE OR ALTER PROCEDURE csp.AltaTemporada
 AS
 BEGIN
     SET NOCOUNT ON;
-<<<<<<< HEAD
+
     DECLARE @errores VARCHAR(MAX) = '';
-=======
-    DECLARE @errores NVARCHAR(MAX) = '';
->>>>>>> 2a11e10e3e0e3cedf2f55bc0f90981727e1eb00e
+
+   
+
 
     IF (@nombre IS NULL OR LTRIM(RTRIM(@nombre)) = '')
         SET @errores += 'El nombre de la temporada es obligatorio.' + CHAR(13);
@@ -355,11 +349,11 @@ CREATE OR ALTER PROCEDURE csp.ModificarTemporada
 AS
 BEGIN
     SET NOCOUNT ON;
-<<<<<<< HEAD
+
     DECLARE @errores VARCHAR(MAX) = '';
-=======
-    DECLARE @errores NVARCHAR(MAX) = '';
->>>>>>> 2a11e10e3e0e3cedf2f55bc0f90981727e1eb00e
+
+  
+
 
     IF NOT EXISTS (SELECT 1 FROM ct.Temporada WHERE id_temporada = @id_temporada)
         SET @errores += 'La temporada indicada no existe.' + CHAR(13);
@@ -404,11 +398,11 @@ CREATE OR ALTER PROCEDURE csp.BajaTemporada
 AS
 BEGIN
     SET NOCOUNT ON;
-<<<<<<< HEAD
+
     DECLARE @errores VARCHAR(MAX) = '';
-=======
-    DECLARE @errores NVARCHAR(MAX) = '';
->>>>>>> 2a11e10e3e0e3cedf2f55bc0f90981727e1eb00e
+
+   
+
 
     IF NOT EXISTS (SELECT 1 FROM ct.Temporada WHERE id_temporada = @id_temporada)
         SET @errores += 'La temporada indicada no existe.' + CHAR(13);
@@ -446,11 +440,11 @@ CREATE OR ALTER PROCEDURE csp.AltaCategoria
 AS
 BEGIN
     SET NOCOUNT ON;
-<<<<<<< HEAD
+
     DECLARE @errores VARCHAR(MAX) = '';
-=======
-    DECLARE @errores NVARCHAR(MAX) = '';
->>>>>>> 2a11e10e3e0e3cedf2f55bc0f90981727e1eb00e
+
+  
+
 
     IF (@nombre IS NULL OR LTRIM(RTRIM(@nombre)) = '')
         SET @errores += 'El nombre de la categoría es obligatorio.' + CHAR(13);
@@ -484,11 +478,11 @@ CREATE OR ALTER PROCEDURE csp.ModificarCategoria
 AS
 BEGIN
     SET NOCOUNT ON;
-<<<<<<< HEAD
+
     DECLARE @errores VARCHAR(MAX) = '';
-=======
-    DECLARE @errores NVARCHAR(MAX) = '';
->>>>>>> 2a11e10e3e0e3cedf2f55bc0f90981727e1eb00e
+
+   
+
 
     IF NOT EXISTS (SELECT 1 FROM ct.Categoria WHERE id_categoria = @id_categoria)
         SET @errores += 'La categoría indicada no existe.' + CHAR(13);
@@ -527,11 +521,11 @@ CREATE OR ALTER PROCEDURE csp.BajaCategoria
 AS
 BEGIN
     SET NOCOUNT ON;
-<<<<<<< HEAD
+
     DECLARE @errores varchar(MAX) = '';
-=======
-    DECLARE @errores NVARCHAR(MAX) = '';
->>>>>>> 2a11e10e3e0e3cedf2f55bc0f90981727e1eb00e
+
+  
+
 
     IF NOT EXISTS (SELECT 1 FROM ct.Categoria WHERE id_categoria = @id_categoria)
         SET @errores += 'La categoría indicada no existe.' + CHAR(13);
@@ -572,11 +566,10 @@ CREATE OR ALTER PROCEDURE csp.AltaProveedor
 AS
 BEGIN
     SET NOCOUNT ON;
-<<<<<<< HEAD
+
     DECLARE @errores varchar(MAX) = '';
-=======
-    DECLARE @errores NVARCHAR(MAX) = '';
->>>>>>> 2a11e10e3e0e3cedf2f55bc0f90981727e1eb00e
+
+
 
     IF (@nombre IS NULL OR LTRIM(RTRIM(@nombre)) = '')
         SET @errores += 'El nombre es obligatorio.' + CHAR(13);
@@ -615,11 +608,11 @@ CREATE OR ALTER PROCEDURE csp.ModificarProveedor
 AS
 BEGIN
     SET NOCOUNT ON;
-<<<<<<< HEAD
+
     DECLARE @errores varchar(MAX) = '';
-=======
-    DECLARE @errores NVARCHAR(MAX) = '';
->>>>>>> 2a11e10e3e0e3cedf2f55bc0f90981727e1eb00e
+
+    
+
 
     IF NOT EXISTS (SELECT 1 FROM ct.Proveedor WHERE id_proveedor = @id_proveedor)
         SET @errores += 'El proveedor indicado no existe.' + CHAR(13);
@@ -655,11 +648,10 @@ CREATE OR ALTER PROCEDURE csp.BajaProveedor
 AS
 BEGIN
     SET NOCOUNT ON;
-<<<<<<< HEAD
+
     DECLARE @errores varchar(MAX) = '';
-=======
-    DECLARE @errores NVARCHAR(MAX) = '';
->>>>>>> 2a11e10e3e0e3cedf2f55bc0f90981727e1eb00e
+
+   
 
     IF NOT EXISTS (SELECT 1 FROM ct.Proveedor WHERE id_proveedor = @id_proveedor)
         SET @errores += 'El proveedor indicado no existe.' + CHAR(13);
@@ -703,11 +695,11 @@ CREATE OR ALTER PROCEDURE csp.AltaProducto
 AS
 BEGIN
     SET NOCOUNT ON;
-<<<<<<< HEAD
+
     DECLARE @errores varchar(MAX) = '';
-=======
-    DECLARE @errores NVARCHAR(MAX) = '';
->>>>>>> 2a11e10e3e0e3cedf2f55bc0f90981727e1eb00e
+
+    
+
 
     IF (@nombre IS NULL OR LTRIM(RTRIM(@nombre)) = '')
         SET @errores += 'El nombre es obligatorio.' + CHAR(13);
@@ -782,11 +774,10 @@ CREATE OR ALTER PROCEDURE csp.AltaListaPrecio
 AS
 BEGIN
     SET NOCOUNT ON;
-<<<<<<< HEAD
+
     DECLARE @errores varchar(MAX) = '';
-=======
-    DECLARE @errores NVARCHAR(MAX) = '';
->>>>>>> 2a11e10e3e0e3cedf2f55bc0f90981727e1eb00e
+
+
 
     IF NOT EXISTS (SELECT 1 FROM ct.Producto WHERE id_producto = @id_producto)
         SET @errores += 'El producto no existe.' + CHAR(13);
@@ -867,11 +858,9 @@ CREATE OR ALTER PROCEDURE csp.AltaLote
 AS
 BEGIN
     SET NOCOUNT ON;
-<<<<<<< HEAD
+
     DECLARE @errores varchar(MAX) = '';
-=======
-    DECLARE @errores NVARCHAR(MAX) = '';
->>>>>>> 2a11e10e3e0e3cedf2f55bc0f90981727e1eb00e
+
 
     IF NOT EXISTS (SELECT 1 FROM ct.Producto WHERE id_producto = @id_producto)
         SET @errores += 'El producto no existe.' + CHAR(13);
@@ -971,11 +960,10 @@ CREATE OR ALTER PROCEDURE csp.AltaCliente
 AS
 BEGIN
     SET NOCOUNT ON;
-<<<<<<< HEAD
+
     DECLARE @errores varchar(MAX) = '';
-=======
-    DECLARE @errores NVARCHAR(MAX) = '';
->>>>>>> 2a11e10e3e0e3cedf2f55bc0f90981727e1eb00e
+
+ 
 
     IF (@nombre IS NULL OR LTRIM(RTRIM(@nombre)) = '')
         SET @errores += 'El nombre es obligatorio.' + CHAR(13);
@@ -1062,11 +1050,11 @@ CREATE OR ALTER PROCEDURE csp.AltaCapacitador
 AS
 BEGIN
     SET NOCOUNT ON;
-<<<<<<< HEAD
+
     DECLARE @errores varchar(MAX) = '';
-=======
-    DECLARE @errores NVARCHAR(MAX) = '';
->>>>>>> 2a11e10e3e0e3cedf2f55bc0f90981727e1eb00e
+
+
+
 
     IF (@nombre IS NULL OR LTRIM(RTRIM(@nombre)) = '')
         SET @errores += 'El nombre es obligatorio.' + CHAR(13);
@@ -1139,11 +1127,11 @@ CREATE OR ALTER PROCEDURE csp.AltaCertificado
 AS
 BEGIN
     SET NOCOUNT ON;
-<<<<<<< HEAD
+
     DECLARE @errores varchar(MAX) = '';
-=======
-    DECLARE @errores NVARCHAR(MAX) = '';
->>>>>>> 2a11e10e3e0e3cedf2f55bc0f90981727e1eb00e
+
+
+
 
     IF NOT EXISTS (SELECT 1 FROM ct.Capacitador WHERE id_capacitador = @id_capacitador)
         SET @errores += 'El capacitador no existe.' + CHAR(13);
@@ -1206,11 +1194,11 @@ CREATE OR ALTER PROCEDURE csp.AltaVendedor
 AS
 BEGIN
     SET NOCOUNT ON;
-<<<<<<< HEAD
+
     DECLARE @errores varchar(MAX) = '';
-=======
-    DECLARE @errores NVARCHAR(MAX) = '';
->>>>>>> 2a11e10e3e0e3cedf2f55bc0f90981727e1eb00e
+
+
+
 
     IF NOT EXISTS (SELECT 1 FROM ct.Sucursal WHERE id_sucursal = @id_sucursal)
         SET @errores += 'La sucursal no existe.' + CHAR(13);
@@ -1283,11 +1271,11 @@ CREATE OR ALTER PROCEDURE csp.AltaVenta
 AS
 BEGIN
     SET NOCOUNT ON;
-<<<<<<< HEAD
+
     DECLARE @errores varchar(MAX) = '';
-=======
-    DECLARE @errores NVARCHAR(MAX) = '';
->>>>>>> 2a11e10e3e0e3cedf2f55bc0f90981727e1eb00e
+
+
+
 
     IF (@fecha > GETDATE())
         SET @errores += 'La fecha no puede ser futura.' + CHAR(13);
@@ -1367,11 +1355,11 @@ CREATE OR ALTER PROCEDURE csp.AltaDetalleVenta
 AS
 BEGIN
     SET NOCOUNT ON;
-<<<<<<< HEAD
+
     DECLARE @errores varchar(MAX) = '';
-=======
-    DECLARE @errores NVARCHAR(MAX) = '';
->>>>>>> 2a11e10e3e0e3cedf2f55bc0f90981727e1eb00e
+
+
+
 
     IF NOT EXISTS (SELECT 1 FROM ct.Venta WHERE id_venta = @id_venta)
         SET @errores += 'La venta no existe.' + CHAR(13);

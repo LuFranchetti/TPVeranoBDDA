@@ -455,11 +455,9 @@ GO
 
 
 -- ==============================
-<<<<<<< HEAD
+
 -- 21. Staging Errores Estimaciones
-=======
--- 17. Staging Errores Estimaciones
->>>>>>> 2a11e10e3e0e3cedf2f55bc0f90981727e1eb00e
+
 --Registra errores detectados durante el procesamiento.No afecta la tabla productiva.
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
@@ -476,11 +474,9 @@ END
 GO
 
 -- ==============================
-<<<<<<< HEAD
+
 -- 22. Staging LogImportacionEstimaciones
-=======
--- 20. Staging LogImportacionEstimaciones
->>>>>>> 2a11e10e3e0e3cedf2f55bc0f90981727e1eb00e
+
 --Es la zona sucia. Aca entra el archivo con BULK INSERT.No tiene claves, no tiene restricciones.Es temporal.
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
@@ -499,11 +495,9 @@ GO
 
 
 -- ==============================
-<<<<<<< HEAD
+
 -- 23. Staging CapacitadoresRaw
-=======
--- 20. Staging CapacitadoresRaw
->>>>>>> 2a11e10e3e0e3cedf2f55bc0f90981727e1eb00e
+
 --Es la zona sucia. Aca entra el archivo con BULK INSERT.No tiene claves, no tiene restricciones.Es temporal.
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
@@ -519,11 +513,9 @@ END
 GO
 
 -- ==============================
-<<<<<<< HEAD
+
 -- 24. Staging Errores Capacitadores
-=======
--- 17. Staging Errores Capacitadores
->>>>>>> 2a11e10e3e0e3cedf2f55bc0f90981727e1eb00e
+
 --Registra errores detectados durante el procesamiento.No afecta la tabla productiva.
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
@@ -538,11 +530,9 @@ END
 GO
 
 -- ==============================
-<<<<<<< HEAD
+
 -- 25. Staging LogImportacionCapacitadores
-=======
--- 20. Staging LogImportacionCapacitadores
->>>>>>> 2a11e10e3e0e3cedf2f55bc0f90981727e1eb00e
+
 --Es la zona sucia. Aca entra el archivo con BULK INSERT.No tiene claves, no tiene restricciones.Es temporal.
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
@@ -559,8 +549,6 @@ BEGIN
 END
 GO
 
-<<<<<<< HEAD
-=======
 -- ==============================
 -- 21. PRECIO MAYORISTA (FINAL)
 -- ==============================
@@ -571,7 +559,7 @@ IF NOT EXISTS (
 )
 BEGIN
     CREATE TABLE ct.PrecioMayorista (
-        id_precio INT IDENTITY PRIMARY KEY,
+        id_precio INT IDENTITY(1,1) PRIMARY KEY,
         fecha DATE NOT NULL,
         tipo_producto VARCHAR(20) NOT NULL,  -- fruta / hortaliza
         especie VARCHAR(150) NOT NULL,
@@ -663,4 +651,4 @@ END
 GO
 
 
->>>>>>> 2a11e10e3e0e3cedf2f55bc0f90981727e1eb00e
+
