@@ -130,6 +130,13 @@ EXEC csp.AltaDetalleVenta
 
 
 -- Ejecución del reporte
+/*
+Ese XML está diciendo:
+La categoría Frutas vendió 16.000
+Costó 10.000
+Ganó 6.000
+Tiene un margen del 37,5%
+*/
 EXEC csp.ReporteRentabilidadXML;
 
 

@@ -442,7 +442,7 @@ GO
 
 
 -- ==============================
--- 17. Staging Errores Estimaciones
+-- 21. Staging Errores Estimaciones
 --Registra errores detectados durante el procesamiento.No afecta la tabla productiva.
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
@@ -459,7 +459,7 @@ END
 GO
 
 -- ==============================
--- 20. Staging LogImportacionEstimaciones
+-- 22. Staging LogImportacionEstimaciones
 --Es la zona sucia. Aca entra el archivo con BULK INSERT.No tiene claves, no tiene restricciones.Es temporal.
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
@@ -478,7 +478,7 @@ GO
 
 
 -- ==============================
--- 20. Staging CapacitadoresRaw
+-- 23. Staging CapacitadoresRaw
 --Es la zona sucia. Aca entra el archivo con BULK INSERT.No tiene claves, no tiene restricciones.Es temporal.
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
@@ -494,7 +494,7 @@ END
 GO
 
 -- ==============================
--- 17. Staging Errores Capacitadores
+-- 24. Staging Errores Capacitadores
 --Registra errores detectados durante el procesamiento.No afecta la tabla productiva.
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
@@ -509,7 +509,7 @@ END
 GO
 
 -- ==============================
--- 20. Staging LogImportacionCapacitadores
+-- 25. Staging LogImportacionCapacitadores
 --Es la zona sucia. Aca entra el archivo con BULK INSERT.No tiene claves, no tiene restricciones.Es temporal.
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
@@ -527,7 +527,7 @@ END
 GO
 
 -- ==============================
--- 21. PRECIO MAYORISTA (FINAL)
+-- 26. PRECIO MAYORISTA (FINAL)
 -- ==============================
 
 
@@ -565,7 +565,7 @@ GO
 
 
 -- ==============================
--- 22. Staging PreciosRaw
+-- 27. Staging PreciosRaw
 -- ==============================
 
 
@@ -594,7 +594,7 @@ END
 GO
 
 -- ==============================
--- 23. Staging ErroresPrecios
+-- 28. Staging ErroresPrecios
 -- ==============================
 IF NOT EXISTS (
     SELECT * FROM INFORMATION_SCHEMA.TABLES 
@@ -613,7 +613,7 @@ GO
 
 
 -- ==============================
--- 24. Staging LogImportacionPrecios
+-- 29. Staging LogImportacionPrecios
 -- ==============================
 IF NOT EXISTS (
     SELECT * FROM INFORMATION_SCHEMA.TABLES 
