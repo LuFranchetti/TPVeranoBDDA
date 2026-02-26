@@ -1,6 +1,7 @@
 ﻿/*
+=========================================================
 Universidad Nacional de La Matanza
-Materia: Base de Datos Aplicadas - Comisión 2343 Verano
+Materia: Base de Datos Aplicadas
 Grupo:
 - Leonel Cespedes
 - Luciana Franchetti
@@ -16,6 +17,7 @@ Arquitectura implementada:
 
 Flujo:
 Archivo CSV → staging → SP procesamiento → ct.Merma
+=========================================================
 */
 
 
@@ -122,25 +124,32 @@ ORDER BY id_capacitador DESC;
 
 -- 6) Ver errores detectados
 
-SELECT * FROM staging.ErroresCapacitadores;
+SELECT *
+FROM staging.ErroresCapacitadores;
 
 
 -- 7) Ver log de importaciones
 
-SELECT * FROM staging.LogImportacionCapacitadores
+SELECT *
+FROM staging.LogImportacionCapacitadores
 ORDER BY id_log DESC;
 
 
 -- ==============================
 -- FRUTAS Y HORTALIZAS
+--1) Ejecutar el procesamiento
+--2) Verificar tabla final
+--3) Ver errores
+--4) Ver log
+
 
 -- ==============================
 
+--1)
 --ejecucion de sp para las frutas
 EXEC csp.ProcesarPrecios 
-    @fecha = '2026-02-02',
+    @fecha = '2026-02-23',
     @tipo_producto = 'fruta';
-GO
 
 --ejecucion de sp para las hortalizas
 EXEC csp.ProcesarPrecios 
@@ -148,20 +157,26 @@ EXEC csp.ProcesarPrecios
     @tipo_producto = 'hortaliza';
 GO
 
-
--- Ver staging
+-- Ver staging.
 SELECT COUNT(*) FROM staging.PreciosRaw;
 
--- Ver tabla final
+--2)
+
+SELECT * FROM ct.PrecioMayorista
+
+
 SELECT TOP 20 *
 FROM ct.PrecioMayorista
 ORDER BY id_precio DESC;
 
--- Ver errores
+SELECT COUNT(*) FROM ct.PrecioMayorista;
+SELECT * FROM staging.LogImportacionPrecios ORDER BY id_log DESC;
+
+--3)
 SELECT *
 FROM staging.ErroresPrecios;
 
--- Ver log
+--4)
 SELECT *
 FROM staging.LogImportacionPrecios
 ORDER BY id_log DESC;

@@ -1,12 +1,14 @@
 /*
+=========================================================
 Universidad Nacional de La Matanza
-Materia: Base de Datos Aplicadas - Comisión 2343 Verano
+Materia: Base de Datos Aplicadas
 Grupo:
 - Leonel Cespedes
 - Luciana Franchetti
 
 Archivo: Testing de Stored Procedures
 Base de datos: Com2343
+=========================================================
 */
 
 USE Com2343

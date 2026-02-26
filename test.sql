@@ -1,6 +1,7 @@
-﻿/*
+﻿
+/*
     Universidad Nacional de La Matanza
-    Materia: Base de Datos Aplicadas - Comisión 2343 Verano
+    Materia: Base de Datos Aplicadas
 	Componentes del grupo:
 		-Leonel Cespedes
 		-Luciana Franchetti
@@ -11,7 +12,7 @@
 
 USE Com2343;
 
-DECLARE @sql VARCHAR(MAX) = '';
+DECLARE @sql NVARCHAR(MAX) = '';
 
 -- 1️⃣ Eliminar todas las foreign keys
 SELECT @sql += 
