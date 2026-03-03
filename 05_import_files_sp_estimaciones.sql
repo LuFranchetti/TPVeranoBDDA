@@ -16,21 +16,15 @@ Arquitectura implementada:
 3) TABLAS FINALES
 
 Flujo:
-Archivo CSV → staging → SP procesamiento → ct.Merma
-
-Archivo CSV
-     ↓
-staging.MermasRaw
-     ↓
-csp.ProcesarMermas
-     ↓
-ct.Merma   ← (tabla final histórica)
+Archivo CSV → MermasRaw (tabla temporal) → csp.ProcesarMermas → ct.Estimaciones (tabla final productiva)
 =========================================================
 */
 
 USE Com2343;
 GO
+
 CREATE OR ALTER PROCEDURE csp.ProcesarEstimaciones
+    @rutaArchivo NVARCHAR(500)
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -42,35 +36,69 @@ BEGIN
 
     BEGIN TRY
 
-        SELECT @registros_staging = COUNT(*) 
-        FROM staging.EstimacionesRaw;
+        -- ==========================================
+        -- TABLA TEMPORAL (STAGING INTERNO)
+        -- ==========================================
 
-        -- ============================
-        -- VALIDACIONES
-        -- ============================
+        IF OBJECT_ID('tempdb..#EstimacionesRaw') IS NOT NULL
+            DROP TABLE #EstimacionesRaw;
 
-        INSERT INTO staging.ErroresEstimaciones (descripcion, cultivo, campania, municipio)
+        CREATE TABLE #EstimacionesRaw (
+            cultivo VARCHAR(200),
+            campania VARCHAR(50),
+            municipio_id VARCHAR(50),
+            municipio_nombre VARCHAR(200),
+            superficie_sembrada VARCHAR(50),
+            superficie_cosechada VARCHAR(50),
+            produccion VARCHAR(50),
+            rendimiento VARCHAR(50)
+        );
+
+        -- ==========================================
+        -- BULK INSERT DINÁMICO
+        -- ==========================================
+
+        DECLARE @sql NVARCHAR(MAX);
+
+        SET @sql = '
+        BULK INSERT #EstimacionesRaw
+        FROM ''' + @rutaArchivo + '''
+        WITH (
+            FIRSTROW = 2,
+            FIELDTERMINATOR = '','',
+            ROWTERMINATOR = ''\n'',
+            CODEPAGE = ''65001'',
+            TABLOCK
+        );';
+
+        EXEC(@sql);
+
+        SELECT @registros_staging = COUNT(*) FROM #EstimacionesRaw;
+
+        -- ==========================================
+        -- VALIDACIONES (ERRORES PERMANENTES)
+        -- ==========================================
+
+        INSERT INTO ct.ErroresEstimaciones (descripcion, cultivo, campania, municipio)
         SELECT 'municipio_id inválido', cultivo, campania, municipio_nombre
-        FROM staging.EstimacionesRaw
+        FROM #EstimacionesRaw
         WHERE TRY_CONVERT(INT, municipio_id) IS NULL;
 
-        INSERT INTO staging.ErroresEstimaciones (descripcion, cultivo, campania, municipio)
+        INSERT INTO ct.ErroresEstimaciones (descripcion, cultivo, campania, municipio)
         SELECT 'Producción inválida', cultivo, campania, municipio_nombre
-        FROM staging.EstimacionesRaw
+        FROM #EstimacionesRaw
         WHERE TRY_CONVERT(DECIMAL(18,2), produccion) IS NULL;
 
-        INSERT INTO staging.ErroresEstimaciones (descripcion, cultivo, campania, municipio)
+        INSERT INTO ct.ErroresEstimaciones (descripcion, cultivo, campania, municipio)
         SELECT 'Superficie inválida', cultivo, campania, municipio_nombre
-        FROM staging.EstimacionesRaw
+        FROM #EstimacionesRaw
         WHERE TRY_CONVERT(DECIMAL(18,2), superficie_sembrada) IS NULL;
 
-        SELECT @registros_error = COUNT(*) 
-        FROM staging.ErroresEstimaciones
-        WHERE fecha >= DATEADD(MINUTE,-5,GETDATE());
+        SELECT @registros_error = @@ROWCOUNT;
 
-        -- ============================
-        -- UPDATE (UPSERT parte 1)
-        -- ============================
+        -- ==========================================
+        -- UPDATE (UPSERT PARTE 1)
+        -- ==========================================
 
         UPDATE e
         SET 
@@ -80,18 +108,17 @@ BEGIN
             e.rendimiento = TRY_CONVERT(DECIMAL(18,2), s.rendimiento),
             e.municipio_nombre = s.municipio_nombre
         FROM ct.EstimacionAgricola e
-        JOIN staging.EstimacionesRaw s
+        JOIN #EstimacionesRaw s
             ON e.cultivo = s.cultivo
             AND e.campania = s.campania
             AND e.municipio_id = TRY_CONVERT(INT, s.municipio_id)
-        WHERE 
-            TRY_CONVERT(INT, s.municipio_id) IS NOT NULL;
+        WHERE TRY_CONVERT(INT, s.municipio_id) IS NOT NULL;
 
         SET @registros_actualizados = @@ROWCOUNT;
 
-        -- ============================
-        -- INSERT (UPSERT parte 2)
-        -- ============================
+        -- ==========================================
+        -- INSERT (UPSERT PARTE 2)
+        -- ==========================================
 
         INSERT INTO ct.EstimacionAgricola (
             cultivo,
@@ -112,7 +139,7 @@ BEGIN
             TRY_CONVERT(DECIMAL(18,2), s.superficie_cosechada),
             TRY_CONVERT(DECIMAL(18,2), s.produccion),
             TRY_CONVERT(DECIMAL(18,2), s.rendimiento)
-        FROM staging.EstimacionesRaw s
+        FROM #EstimacionesRaw s
         WHERE 
             TRY_CONVERT(INT, s.municipio_id) IS NOT NULL
             AND NOT EXISTS (
@@ -125,39 +152,31 @@ BEGIN
 
         SET @registros_insertados = @@ROWCOUNT;
 
-        -- ============================
-        -- LOG
-        -- ============================
+        -- ==========================================
+        -- LOG PERMANENTE
+        -- ==========================================
 
-        INSERT INTO staging.LogImportacionEstimaciones
+        INSERT INTO ct.LogImportacionEstimaciones
         (registros_staging, registros_actualizados, registros_insertados, registros_error)
         VALUES (@registros_staging, @registros_actualizados, @registros_insertados, @registros_error);
 
-        -- ============================
-        -- LIMPIAR STAGING
-        -- ============================
+        -- ==========================================
+        -- RESULTADO
+        -- ==========================================
 
-        TRUNCATE TABLE staging.EstimacionesRaw;
+        SELECT 
+            @registros_staging AS registros_recibidos,
+            @registros_actualizados AS registros_actualizados,
+            @registros_insertados AS registros_insertados,
+            @registros_error AS registros_error;
 
     END TRY
     BEGIN CATCH
-        INSERT INTO staging.ErroresEstimaciones (descripcion)
+        INSERT INTO ct.ErroresEstimaciones (descripcion)
         VALUES (ERROR_MESSAGE());
     END CATCH
+
 END
-GO
-
-
-
-BULK INSERT staging.EstimacionesRaw
-FROM 'C:\Importaciones\estimaciones.csv'
-WITH (
-    FIRSTROW = 2,
-    FIELDTERMINATOR = ',',
-    ROWTERMINATOR = '\n',
-    CODEPAGE = '65001',
-    TABLOCK
-);
 GO
 
 

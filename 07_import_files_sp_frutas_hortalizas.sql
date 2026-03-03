@@ -17,14 +17,6 @@ Arquitectura implementada:
 
 Flujo:
 Archivo CSV → staging → SP procesamiento → ct.Merma
-
-Archivo CSV
-     ↓
-staging.MermasRaw
-     ↓
-csp.ProcesarMermas
-     ↓
-ct.Merma   ← (tabla final histórica)
 =========================================================
 */
 
@@ -32,6 +24,7 @@ USE Com2343;
 GO
 
 CREATE OR ALTER PROCEDURE csp.ProcesarPrecios
+    @rutaArchivo NVARCHAR(500),
     @fecha DATE,
     @tipo_producto VARCHAR(20)
 AS
@@ -40,22 +33,61 @@ BEGIN
 
     DECLARE @registros_staging INT = 0;
     DECLARE @registros_insertados INT = 0;
+    DECLARE @registros_error INT = 0;
 
     BEGIN TRY
 
         BEGIN TRAN;
 
-        -----------------------------------
-        -- 1️⃣ Contar registros en staging
-        -----------------------------------
-        SELECT @registros_staging = COUNT(*)
-        FROM staging.PreciosRaw;
+        -- ==========================================
+        -- 1️⃣ TABLA TEMPORAL
+        -- ==========================================
 
-        PRINT 'Registros en staging: ' + CAST(@registros_staging AS VARCHAR);
+        IF OBJECT_ID('tempdb..#PreciosRaw') IS NOT NULL
+            DROP TABLE #PreciosRaw;
 
-        -----------------------------------
-        -- 2️⃣ INSERT directo (sin UPSERT)
-        -----------------------------------
+        CREATE TABLE #PreciosRaw (
+            ESP VARCHAR(200),
+            VAR VARCHAR(200),
+            PROCEDENCIA VARCHAR(200),
+            ENV VARCHAR(50),
+            KG VARCHAR(50),
+            CAL VARCHAR(50),
+            TAM VARCHAR(100),
+            GRADO VARCHAR(50),
+            MA VARCHAR(50),
+            MO VARCHAR(50),
+            MI VARCHAR(50),
+            MAPK VARCHAR(50),
+            MOPK VARCHAR(50),
+            MIPK VARCHAR(50)
+        );
+
+        -- ==========================================
+        -- 2️⃣ BULK INSERT DINÁMICO
+        -- ==========================================
+
+        DECLARE @sql NVARCHAR(MAX);
+
+        SET @sql = '
+        BULK INSERT #PreciosRaw
+        FROM ''' + @rutaArchivo + '''
+        WITH (
+            FIRSTROW = 2,
+            FIELDTERMINATOR = '';'',
+            ROWTERMINATOR = ''\n'',
+            CODEPAGE = ''65001'',
+            TABLOCK
+        );';
+
+        EXEC(@sql);
+
+        SELECT @registros_staging = COUNT(*) FROM #PreciosRaw;
+
+        -- ==========================================
+        -- 3️⃣ INSERT A TABLA FINAL
+        -- ==========================================
+
         INSERT INTO ct.PrecioMayorista (
             fecha,
             tipo_producto,
@@ -91,16 +123,15 @@ BEGIN
             TRY_CONVERT(DECIMAL(18,2), REPLACE(r.MAPK, ',', '.')),
             TRY_CONVERT(DECIMAL(18,2), REPLACE(r.MOPK, ',', '.')),
             TRY_CONVERT(DECIMAL(18,2), REPLACE(r.MIPK, ',', '.'))
-        FROM staging.PreciosRaw r;
+        FROM #PreciosRaw r;
 
         SET @registros_insertados = @@ROWCOUNT;
 
-        PRINT 'Registros insertados: ' + CAST(@registros_insertados AS VARCHAR);
+        -- ==========================================
+        -- 4️⃣ LOG PERMANENTE
+        -- ==========================================
 
-        -----------------------------------
-        -- 3️⃣ Log
-        -----------------------------------
-        INSERT INTO staging.LogImportacionPrecios
+        INSERT INTO ct.LogImportacionPrecios
         (
             fecha_archivo,
             tipo_producto,
@@ -116,17 +147,18 @@ BEGIN
             @registros_staging,
             0,
             @registros_insertados,
-            0
+            @registros_error
         );
-
-        -----------------------------------
-        -- 4️⃣ Limpiar staging
-        -----------------------------------
-        TRUNCATE TABLE staging.PreciosRaw;
 
         COMMIT;
 
-        PRINT 'SP finalizado correctamente';
+        -- ==========================================
+        -- 5️⃣ RESULTADO
+        -- ==========================================
+
+        SELECT 
+            @registros_staging AS registros_recibidos,
+            @registros_insertados AS registros_insertados;
 
     END TRY
     BEGIN CATCH
@@ -134,43 +166,9 @@ BEGIN
         IF @@TRANCOUNT > 0
             ROLLBACK;
 
-        PRINT 'ERROR DETECTADO';
-        PRINT ERROR_MESSAGE();
+        INSERT INTO ct.ErroresPrecios (descripcion)
+        VALUES (ERROR_MESSAGE());
 
     END CATCH
 END
 GO
-
-USE Com2343;
-GO
-
-BULK INSERT staging.PreciosRaw
-FROM 'C:\importaciones\FRUTAS_FEBRERO-26_0\RF250226.csv'
-WITH (
-    FIRSTROW = 2,
-    FIELDTERMINATOR = ';',
-    ROWTERMINATOR = '\n',
-    CODEPAGE = '65001',
-    TABLOCK
-);
-GO
-
-
-
-BULK INSERT staging.PreciosRaw
-FROM 'C:\importaciones\HORTALIZAS_FEBRERO-26\RH250226.csv'
-WITH (
-    FIRSTROW = 2,
-    FIELDTERMINATOR = ';',
-    ROWTERMINATOR = '\n',
-    CODEPAGE = '65001',
-    TABLOCK
-);
-GO
-
-
-SELECT COUNT(*) AS RegistrosEnStaging
-FROM staging.PreciosRaw;
-
-SELECT *
-FROM staging.PreciosRaw;

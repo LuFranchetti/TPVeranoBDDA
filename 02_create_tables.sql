@@ -7,7 +7,32 @@
 		-Luciana Franchetti
 
 
-    Descripción: Creación de las tablas de la base Com2343
+    Descripción: Creación de las tablas (productivas) de la base Com2343
+		ct.Sucursal
+		ct.Stock
+		ct.Temporada
+		ct.Categoria
+		ct.Proveedor
+		ct.Producto
+		ct.ListaPrecio	
+		ct.Lote
+		ct.Cliente
+		ct.Capacitador
+		ct.Certificado
+		ct.Vendedor
+		ct.Venta
+		ct.DetalleVenta
+		ct.Merma
+		ct.EstimacionAgricola
+		ct.PrecioMayorista
+		ct.ErroresMermas
+		ct.LogImportacionMermas
+		ct.ErroresEstimaciones
+		ct.LogImportacionEstimaciones
+		ct.ErroresCapacitadores
+		ct.LogImportacionCapacitadores
+		ct.ErroresPrecios
+		ct.LogImportacionPrecios
 */
 
 USE Com2343
@@ -22,12 +47,6 @@ GO
 IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'csp') -- CARGAR SP
 BEGIN
 	EXEC('CREATE SCHEMA csp')
-END 
-GO
-
-IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'staging') -- CARGAR SP PARA STAGING
-BEGIN
-	EXEC('CREATE SCHEMA staging')
 END 
 GO
 
@@ -346,30 +365,14 @@ END
 GO
 
 -- ==============================
--- 16. Staging MERMA
---Es la zona sucia. Aca entra el archivo con BULK INSERT.No tiene claves, no tiene restricciones.Es temporal.
--- ==============================
-IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
-               WHERE TABLE_SCHEMA = 'staging' AND TABLE_NAME = 'MermasRaw')
-BEGIN
-    CREATE TABLE staging.MermasRaw (
-        fecha VARCHAR(50),
-        producto VARCHAR(200),
-        cantidad VARCHAR(50),
-        sucursal VARCHAR(200)
-    );
-END
-GO
-
--- ==============================
--- 17. Staging Errores MERMA
+-- 16.  Errores MERMA
 --Registra errores detectados durante el procesamiento.No afecta la tabla productiva.
 -- ==============================
 
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
-               WHERE TABLE_SCHEMA = 'staging' AND TABLE_NAME = 'ErroresMermas')
+               WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'ErroresMermas')
 BEGIN
-	   CREATE TABLE staging.ErroresMermas (
+	   CREATE TABLE ct.ErroresMermas (
 		fecha DATETIME DEFAULT GETDATE(),
 		descripcion VARCHAR(500),
 		fila_producto VARCHAR(200),
@@ -378,15 +381,17 @@ BEGIN
 END
 GO
 
+
+
 -- ==============================
--- 18. Staging LogImportacionMermas
+-- 17.  LogImportacionMermas
 --Registra el log de las importaciones.
 -- ==============================
 
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
-               WHERE TABLE_SCHEMA = 'staging' AND TABLE_NAME = 'LogImportacionMermas')
+               WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'LogImportacionMermas')
 BEGIN
-    CREATE TABLE staging.LogImportacionMermas(
+    CREATE TABLE ct.LogImportacionMermas(
         id_log INT IDENTITY PRIMARY KEY,
         fecha_importacion DATETIME DEFAULT GETDATE(),
         registros_staging INT,
@@ -398,7 +403,7 @@ GO
 
 
 -- ==============================
--- 19. Estimaciones agricolas
+-- 18. Estimaciones agricolas
 --Esta es la tabla productiva final. Es donde queda el histórico real.
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
@@ -420,35 +425,15 @@ BEGIN
     );
 END
 GO
--- ==============================
--- 20. Staging EstimacionesRaw
---Es la zona sucia. Aca entra el archivo con BULK INSERT.No tiene claves, no tiene restricciones.Es temporal.
--- ==============================
-IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
-               WHERE TABLE_SCHEMA = 'staging' AND TABLE_NAME = 'EstimacionesRaw')
-BEGIN
-    CREATE TABLE staging.EstimacionesRaw (
-        cultivo VARCHAR(200),
-        campania VARCHAR(50),
-        municipio_id VARCHAR(50),
-        municipio_nombre VARCHAR(200),
-        superficie_sembrada VARCHAR(50),
-        superficie_cosechada VARCHAR(50),
-        produccion VARCHAR(50),
-        rendimiento VARCHAR(50)
-    );
-END
-GO
-
 
 -- ==============================
--- 21. Staging Errores Estimaciones
+-- 19. Errores Estimaciones
 --Registra errores detectados durante el procesamiento.No afecta la tabla productiva.
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
-               WHERE TABLE_SCHEMA = 'staging' AND TABLE_NAME = 'ErroresEstimaciones')
+               WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'ErroresEstimaciones')
 BEGIN
-    CREATE TABLE staging.ErroresEstimaciones (
+    CREATE TABLE ct.ErroresEstimaciones (
         fecha DATETIME DEFAULT GETDATE(),
         descripcion VARCHAR(500),
         cultivo VARCHAR(200),
@@ -459,13 +444,13 @@ END
 GO
 
 -- ==============================
--- 22. Staging LogImportacionEstimaciones
+-- 20. LogImportacionEstimaciones
 --Es la zona sucia. Aca entra el archivo con BULK INSERT.No tiene claves, no tiene restricciones.Es temporal.
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
-               WHERE TABLE_SCHEMA = 'staging' AND TABLE_NAME = 'LogImportacionEstimaciones')
+               WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'LogImportacionEstimaciones')
 BEGIN
-    CREATE TABLE staging.LogImportacionEstimaciones(
+    CREATE TABLE ct.LogImportacionEstimaciones(
         id_log INT IDENTITY PRIMARY KEY,
         fecha_importacion DATETIME DEFAULT GETDATE(),
         registros_staging INT,
@@ -476,31 +461,14 @@ BEGIN
 END
 GO
 
-
 -- ==============================
--- 23. Staging CapacitadoresRaw
---Es la zona sucia. Aca entra el archivo con BULK INSERT.No tiene claves, no tiene restricciones.Es temporal.
--- ==============================
-IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
-               WHERE TABLE_SCHEMA = 'staging' AND TABLE_NAME = 'CapacitadoresRaw')
-BEGIN
-    CREATE TABLE staging.CapacitadoresRaw (
-		numero_registro VARCHAR(100),
-		nombre_completo VARCHAR(200),
-		telefono VARCHAR(50),
-		mail VARCHAR(200)
-	);
-END
-GO
-
--- ==============================
--- 24. Staging Errores Capacitadores
+-- 21.  Errores Capacitadores
 --Registra errores detectados durante el procesamiento.No afecta la tabla productiva.
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
-               WHERE TABLE_SCHEMA = 'staging' AND TABLE_NAME = 'ErroresCapacitadores')
+               WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'ErroresCapacitadores')
 BEGIN
-    CREATE TABLE staging.ErroresCapacitadores (
+    CREATE TABLE ct.ErroresCapacitadores (
 		fecha DATETIME DEFAULT GETDATE(),
 		descripcion VARCHAR(500),
 		numero_registro VARCHAR(100)
@@ -508,14 +476,17 @@ BEGIN
 END
 GO
 
+
+
+
 -- ==============================
--- 25. Staging LogImportacionCapacitadores
+-- 22.  LogImportacionCapacitadores
 --Es la zona sucia. Aca entra el archivo con BULK INSERT.No tiene claves, no tiene restricciones.Es temporal.
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
-               WHERE TABLE_SCHEMA = 'staging' AND TABLE_NAME = 'LogImportacionCapacitadores')
+               WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'LogImportacionCapacitadores')
 BEGIN
-    CREATE TABLE staging.LogImportacionCapacitadores(
+    CREATE TABLE ct.LogImportacionCapacitadores(
 		id_log INT IDENTITY PRIMARY KEY,
 		fecha_importacion DATETIME DEFAULT GETDATE(),
 		registros_staging INT,
@@ -527,12 +498,11 @@ END
 GO
 
 -- ==============================
--- 26. PRECIO MAYORISTA (FINAL)
+-- 23. PRECIO MAYORISTA (FINAL)
 -- ==============================
 
-
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
-               WHERE TABLE_SCHEMA = 'staging' AND TABLE_NAME = 'PrecioMayorista')
+               WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'PrecioMayorista')
 BEGIN
     CREATE TABLE ct.PrecioMayorista (
     id_precio INT IDENTITY PRIMARY KEY,
@@ -565,44 +535,15 @@ GO
 
 
 -- ==============================
--- 27. Staging PreciosRaw
--- ==============================
-
-
-IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
-               WHERE TABLE_SCHEMA = 'staging' AND TABLE_NAME = 'PreciosRaw')
-BEGIN
-    CREATE TABLE staging.PreciosRaw (
-		ESP VARCHAR(200),
-		VAR VARCHAR(200),
-		PROCEDENCIA  VARCHAR(200),
-		ENV VARCHAR(50),
-		KG VARCHAR(50),
-		CAL VARCHAR(50),
-		TAM VARCHAR(100),
-		GRADO VARCHAR(50),
-
-		MA VARCHAR(50),
-		MO VARCHAR(50),
-		MI VARCHAR(50),
-
-		MAPK VARCHAR(50),
-		MOPK VARCHAR(50),
-		MIPK VARCHAR(50)
-	);
-END
-GO
-
--- ==============================
--- 28. Staging ErroresPrecios
+-- 24.  ErroresPrecios
 -- ==============================
 IF NOT EXISTS (
     SELECT * FROM INFORMATION_SCHEMA.TABLES 
-    WHERE TABLE_SCHEMA = 'staging' 
+    WHERE TABLE_SCHEMA = 'ct' 
     AND TABLE_NAME = 'ErroresPrecios'
 )
 BEGIN
-    CREATE TABLE staging.ErroresPrecios (
+    CREATE TABLE ct.ErroresPrecios (
         fecha DATETIME DEFAULT GETDATE(),
         descripcion VARCHAR(500),
         especie VARCHAR(200),
@@ -613,15 +554,15 @@ GO
 
 
 -- ==============================
--- 29. Staging LogImportacionPrecios
+-- 25. LogImportacionPrecios
 -- ==============================
 IF NOT EXISTS (
     SELECT * FROM INFORMATION_SCHEMA.TABLES 
-    WHERE TABLE_SCHEMA = 'staging' 
+    WHERE TABLE_SCHEMA = 'ct' 
     AND TABLE_NAME = 'LogImportacionPrecios'
 )
 BEGIN
-    CREATE TABLE staging.LogImportacionPrecios(
+    CREATE TABLE ct.LogImportacionPrecios(
         id_log INT IDENTITY PRIMARY KEY,
         fecha_importacion DATETIME DEFAULT GETDATE(),
         fecha_archivo DATE,
