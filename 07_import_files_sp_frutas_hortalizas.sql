@@ -40,7 +40,7 @@ BEGIN
         BEGIN TRAN;
 
         -- ==========================================
-        -- 1️⃣ TABLA TEMPORAL
+        -- 1 TABLA TEMPORAL
         -- ==========================================
 
         IF OBJECT_ID('tempdb..#PreciosRaw') IS NOT NULL
@@ -64,7 +64,7 @@ BEGIN
         );
 
         -- ==========================================
-        -- 2️⃣ BULK INSERT DINÁMICO
+        -- 2 BULK INSERT DINÁMICO
         -- ==========================================
 
         DECLARE @sql NVARCHAR(MAX);
@@ -88,7 +88,7 @@ BEGIN
         -- 3️⃣ INSERT A TABLA FINAL
         -- ==========================================
 
-        INSERT INTO ct.PrecioMayorista (
+        INSERT INTO importaciones.PrecioMayorista (
             fecha,
             tipo_producto,
             especie,
@@ -128,10 +128,10 @@ BEGIN
         SET @registros_insertados = @@ROWCOUNT;
 
         -- ==========================================
-        -- 4️⃣ LOG PERMANENTE
+        -- 4 LOG PERMANENTE
         -- ==========================================
 
-        INSERT INTO ct.LogImportacionPrecios
+        INSERT INTO importaciones.LogImportacionPrecios
         (
             fecha_archivo,
             tipo_producto,
@@ -153,7 +153,7 @@ BEGIN
         COMMIT;
 
         -- ==========================================
-        -- 5️⃣ RESULTADO
+        -- 5 RESULTADO
         -- ==========================================
 
         SELECT 
@@ -166,7 +166,7 @@ BEGIN
         IF @@TRANCOUNT > 0
             ROLLBACK;
 
-        INSERT INTO ct.ErroresPrecios (descripcion)
+        INSERT INTO importaciones.ErroresPrecios (descripcion)
         VALUES (ERROR_MESSAGE());
 
     END CATCH

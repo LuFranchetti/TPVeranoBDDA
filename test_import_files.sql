@@ -36,19 +36,19 @@ GO
 
 -- 2️) Ver datos insertados en tabla productiva
 SELECT *
-FROM ct.Merma
+FROM importaciones.Merma
 ORDER BY fecha DESC;
 GO
 
 -- 3️) Ver errores detectados
 SELECT *
-FROM ct.ErroresMermas
+FROM importaciones.ErroresMermas
 ORDER BY fecha DESC;
 GO
 
 -- 4️) Ver log de importación
 SELECT *
-FROM ct.LogImportacionMermas
+FROM importaciones.LogImportacionMermas
 ORDER BY fecha_importacion DESC;
 GO
 
@@ -70,24 +70,24 @@ GO
 
 -- 2️) Ver total en tabla final
 SELECT COUNT(*) AS TotalFinal
-FROM ct.EstimacionAgricola;
+FROM importaciones.EstimacionAgricola;
 GO
 
 -- 3️) Ver últimos registros insertados/actualizados
 SELECT TOP 20 *
-FROM ct.EstimacionAgricola
+FROM importaciones.EstimacionAgricola
 ORDER BY id_estimacion DESC;
 GO
 
 -- 4️) Ver errores detectados
 SELECT *
-FROM ct.ErroresEstimaciones
+FROM importaciones.ErroresEstimaciones
 ORDER BY fecha DESC;
 GO
 
 -- 5️) Ver log de importación
 SELECT *
-FROM ct.LogImportacionEstimaciones
+FROM importaciones.LogImportacionEstimaciones
 ORDER BY id_log DESC;
 GO
 
@@ -111,23 +111,23 @@ GO
 
 -- 2️) Verificar tabla final
 SELECT COUNT(*) AS TotalCapacitadores
-FROM ct.Capacitador;
+FROM ventas.Capacitador;
 GO
 
 SELECT TOP 20 *
-FROM ct.Capacitador
+FROM ventas.Capacitador
 ORDER BY id_capacitador DESC;
 GO
 
 -- 3) Ver errores detectados
 SELECT *
-FROM ct.ErroresCapacitadores
+FROM importaciones.ErroresCapacitadores
 ORDER BY fecha DESC;
 GO
 
 -- 4) Ver log de importaciones
 SELECT *
-FROM ct.LogImportacionCapacitadores
+FROM importaciones.LogImportacionCapacitadores
 ORDER BY id_log DESC;
 GO
 
@@ -170,11 +170,11 @@ GO
 -- =========================================
 
 SELECT COUNT(*) AS TotalRegistros
-FROM ct.PrecioMayorista;
+FROM importaciones.PrecioMayorista;
 GO
 
 SELECT TOP 20 *
-FROM ct.PrecioMayorista
+FROM importaciones.PrecioMayorista
 ORDER BY id_precio DESC;
 GO
 
@@ -184,7 +184,7 @@ GO
 -- =========================================
 
 SELECT *
-FROM ct.ErroresPrecios
+FROM importaciones.ErroresPrecios
 ORDER BY fecha DESC;
 GO
 
@@ -194,7 +194,7 @@ GO
 -- =========================================
 
 SELECT *
-FROM ct.LogImportacionPrecios
+FROM importaciones.LogImportacionPrecios
 ORDER BY id_log DESC;
 GO
 

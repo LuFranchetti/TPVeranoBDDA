@@ -79,17 +79,17 @@ BEGIN
         -- VALIDACIONES (ERRORES PERMANENTES)
         -- ==========================================
 
-        INSERT INTO ct.ErroresEstimaciones (descripcion, cultivo, campania, municipio)
+        INSERT INTO importaciones.ErroresEstimaciones (descripcion, cultivo, campania, municipio)
         SELECT 'municipio_id inválido', cultivo, campania, municipio_nombre
         FROM #EstimacionesRaw
         WHERE TRY_CONVERT(INT, municipio_id) IS NULL;
 
-        INSERT INTO ct.ErroresEstimaciones (descripcion, cultivo, campania, municipio)
+        INSERT INTO importaciones.ErroresEstimaciones (descripcion, cultivo, campania, municipio)
         SELECT 'Producción inválida', cultivo, campania, municipio_nombre
         FROM #EstimacionesRaw
         WHERE TRY_CONVERT(DECIMAL(18,2), produccion) IS NULL;
 
-        INSERT INTO ct.ErroresEstimaciones (descripcion, cultivo, campania, municipio)
+        INSERT INTO importaciones.ErroresEstimaciones (descripcion, cultivo, campania, municipio)
         SELECT 'Superficie inválida', cultivo, campania, municipio_nombre
         FROM #EstimacionesRaw
         WHERE TRY_CONVERT(DECIMAL(18,2), superficie_sembrada) IS NULL;
@@ -107,7 +107,7 @@ BEGIN
             e.produccion = TRY_CONVERT(DECIMAL(18,2), s.produccion),
             e.rendimiento = TRY_CONVERT(DECIMAL(18,2), s.rendimiento),
             e.municipio_nombre = s.municipio_nombre
-        FROM ct.EstimacionAgricola e
+        FROM importaciones.EstimacionAgricola e
         JOIN #EstimacionesRaw s
             ON e.cultivo = s.cultivo
             AND e.campania = s.campania
@@ -120,7 +120,7 @@ BEGIN
         -- INSERT (UPSERT PARTE 2)
         -- ==========================================
 
-        INSERT INTO ct.EstimacionAgricola (
+        INSERT INTO importaciones.EstimacionAgricola (
             cultivo,
             campania,
             municipio_id,
@@ -144,7 +144,7 @@ BEGIN
             TRY_CONVERT(INT, s.municipio_id) IS NOT NULL
             AND NOT EXISTS (
                 SELECT 1 
-                FROM ct.EstimacionAgricola e
+                FROM importaciones.EstimacionAgricola e
                 WHERE e.cultivo = s.cultivo
                 AND e.campania = s.campania
                 AND e.municipio_id = TRY_CONVERT(INT, s.municipio_id)
@@ -156,7 +156,7 @@ BEGIN
         -- LOG PERMANENTE
         -- ==========================================
 
-        INSERT INTO ct.LogImportacionEstimaciones
+        INSERT INTO importaciones.LogImportacionEstimaciones
         (registros_staging, registros_actualizados, registros_insertados, registros_error)
         VALUES (@registros_staging, @registros_actualizados, @registros_insertados, @registros_error);
 
@@ -172,7 +172,7 @@ BEGIN
 
     END TRY
     BEGIN CATCH
-        INSERT INTO ct.ErroresEstimaciones (descripcion)
+        INSERT INTO importaciones.ErroresEstimaciones (descripcion)
         VALUES (ERROR_MESSAGE());
     END CATCH
 

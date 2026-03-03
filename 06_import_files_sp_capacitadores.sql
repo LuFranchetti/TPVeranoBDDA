@@ -76,7 +76,7 @@ BEGIN
         -- VALIDACIONES (ERRORES PERMANENTES)
         -- ==========================================
 
-        INSERT INTO ct.ErroresCapacitadores (descripcion, numero_registro)
+        INSERT INTO importaciones.ErroresCapacitadores (descripcion, numero_registro)
         SELECT 'Número de registro vacío', numero_registro
         FROM #CapacitadoresRaw
         WHERE numero_registro IS NULL OR numero_registro = '';
@@ -91,7 +91,7 @@ BEGIN
         SET 
             c.telefono = s.telefono,
             c.mail = s.mail
-        FROM ct.Capacitador c
+        FROM ventas.Capacitador c
         JOIN #CapacitadoresRaw s
             ON c.numero_registro = s.numero_registro;
 
@@ -101,7 +101,7 @@ BEGIN
         -- INSERT (UPSERT PARTE 2)
         -- ==========================================
 
-        INSERT INTO ct.Capacitador
+        INSERT INTO ventas.Capacitador
         (numero_registro, nombre, apellido, telefono, mail)
         SELECT
             s.numero_registro,
@@ -118,7 +118,7 @@ BEGIN
         AND s.numero_registro <> ''
         AND NOT EXISTS (
             SELECT 1
-            FROM ct.Capacitador c
+            FROM ventas.Capacitador c
             WHERE c.numero_registro = s.numero_registro
         );
 
@@ -128,7 +128,7 @@ BEGIN
         -- LOG PERMANENTE
         -- ==========================================
 
-        INSERT INTO ct.LogImportacionCapacitadores
+        INSERT INTO importaciones.LogImportacionCapacitadores
         (registros_staging, registros_actualizados, registros_insertados, registros_error)
         VALUES (@registros_staging, @registros_actualizados, @registros_insertados, @registros_error);
 
@@ -144,7 +144,7 @@ BEGIN
 
     END TRY
     BEGIN CATCH
-        INSERT INTO ct.ErroresCapacitadores (descripcion)
+        INSERT INTO importaciones.ErroresCapacitadores (descripcion)
         VALUES (ERROR_MESSAGE());
     END CATCH
 

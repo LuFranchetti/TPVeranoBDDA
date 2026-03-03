@@ -77,22 +77,22 @@ BEGIN
         -- ==========================================
 
         IF NOT EXISTS (
-            SELECT 1 FROM ct.Categoria WHERE nombre = 'General'
+            SELECT 1 FROM productos.Categoria WHERE nombre = 'General'
         )
         BEGIN
-            INSERT INTO ct.Categoria (nombre, margen_ganancia)
+            INSERT INTO productos.Categoria (nombre, margen_ganancia)
             VALUES ('General', 30);
         END
 
         SELECT @id_categoria = id_categoria
-        FROM ct.Categoria
+        FROM productos.Categoria
         WHERE nombre = 'General';
 
         -- ==========================================
         -- UPSERT PRODUCTOS
         -- ==========================================
 
-        INSERT INTO ct.Producto
+        INSERT INTO productos.Producto
         (nombre, descripcion, forma_comercializacion, tipo_producto_agricola, vida_util, id_categoria)
         SELECT DISTINCT
             m.producto,
@@ -104,7 +104,7 @@ BEGIN
         FROM #MermasRaw m
         WHERE NOT EXISTS (
             SELECT 1
-            FROM ct.Producto p
+            FROM productos.Producto p
             WHERE p.nombre = m.producto
         );
 
@@ -112,14 +112,14 @@ BEGIN
         -- UPSERT SUCURSALES
         -- ==========================================
 
-        INSERT INTO ct.Sucursal (nombre, direccion)
+        INSERT INTO productos.Sucursal (nombre, direccion)
         SELECT DISTINCT
             m.sucursal,
             'Sucursal importada'
         FROM #MermasRaw m
         WHERE NOT EXISTS (
             SELECT 1
-            FROM ct.Sucursal s
+            FROM productos.Sucursal s
             WHERE s.nombre = m.sucursal
         );
 
@@ -127,12 +127,12 @@ BEGIN
         -- VALIDACIONES (GUARDAR ERRORES)
         -- ==========================================
 
-        INSERT INTO ct.ErroresMermas (descripcion, fila_producto, fila_sucursal)
+        INSERT INTO importaciones.ErroresMermas (descripcion, fila_producto, fila_sucursal)
         SELECT 'Fecha inválida', producto, sucursal
         FROM #MermasRaw
         WHERE TRY_CONVERT(DATE, fecha, 103) IS NULL;
 
-        INSERT INTO ct.ErroresMermas (descripcion, fila_producto, fila_sucursal)
+        INSERT INTO importaciones.ErroresMermas (descripcion, fila_producto, fila_sucursal)
         SELECT 'Cantidad inválida', producto, sucursal
         FROM #MermasRaw
         WHERE TRY_CONVERT(INT, cantidad) IS NULL;
@@ -143,21 +143,21 @@ BEGIN
         -- INSERTAR REGISTROS VÁLIDOS
         -- ==========================================
 
-        INSERT INTO ct.Merma (id_producto, id_sucursal, fecha, cantidad)
+        INSERT INTO importaciones.Merma (id_producto, id_sucursal, fecha, cantidad)
         SELECT 
             p.id_producto,
             s.id_sucursal,
             TRY_CONVERT(DATE, m.fecha, 103),
             TRY_CONVERT(INT, m.cantidad)
         FROM #MermasRaw m
-        JOIN ct.Producto p ON p.nombre = m.producto
-        JOIN ct.Sucursal s ON s.nombre = m.sucursal
+        JOIN productos.Producto p ON p.nombre = m.producto
+        JOIN productos.Sucursal s ON s.nombre = m.sucursal
         WHERE 
             TRY_CONVERT(DATE, m.fecha, 103) IS NOT NULL
             AND TRY_CONVERT(INT, m.cantidad) IS NOT NULL
             AND NOT EXISTS (
                 SELECT 1 
-                FROM ct.Merma me
+                FROM importaciones.Merma me
                 WHERE me.id_producto = p.id_producto
                 AND me.id_sucursal = s.id_sucursal
                 AND me.fecha = TRY_CONVERT(DATE, m.fecha, 103)
@@ -169,7 +169,7 @@ BEGIN
         -- LOG DE IMPORTACIÓN (PERMANENTE)
         -- ==========================================
 
-        INSERT INTO ct.LogImportacionMermas
+        INSERT INTO importaciones.LogImportacionMermas
         (registros_staging, registros_insertados, registros_error)
         VALUES (@registros_staging, @registros_insertados, @registros_error);
 
@@ -184,7 +184,7 @@ BEGIN
 
     END TRY
     BEGIN CATCH
-        INSERT INTO ct.ErroresMermas (descripcion)
+        INSERT INTO importaciones.ErroresMermas (descripcion)
         VALUES (ERROR_MESSAGE());
     END CATCH
 

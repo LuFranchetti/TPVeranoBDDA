@@ -64,7 +64,7 @@ BEGIN
     IF (LEN(@direccion) < 5)
         SET @errores += 'La dirección debe tener al menos 5 caracteres.' + CHAR(13);
 
-    IF EXISTS (SELECT 1 FROM ct.Sucursal WHERE nombre = @nombre)
+    IF EXISTS (SELECT 1 FROM productos.Sucursal WHERE nombre = @nombre)
         SET @errores += 'Ya existe una sucursal con ese nombre.' + CHAR(13);
 
     IF (@errores <> '')
@@ -73,7 +73,7 @@ BEGIN
         RETURN;
     END;
 
-    INSERT INTO ct.Sucursal(nombre, direccion)
+    INSERT INTO productos.Sucursal(nombre, direccion)
     VALUES(@nombre, @direccion);
 END
 GO
@@ -93,7 +93,7 @@ BEGIN
     SET NOCOUNT ON;
     DECLARE @errores NVARCHAR(MAX) = '';
 
-    IF NOT EXISTS (SELECT 1 FROM ct.Sucursal WHERE id_sucursal = @id_sucursal)
+    IF NOT EXISTS (SELECT 1 FROM productos.Sucursal WHERE id_sucursal = @id_sucursal)
         SET @errores += 'La sucursal indicada no existe.' + CHAR(13);
 
     IF (@nombre IS NULL OR LTRIM(RTRIM(@nombre)) = '')
@@ -102,7 +102,7 @@ BEGIN
     IF (@direccion IS NULL OR LTRIM(RTRIM(@direccion)) = '')
         SET @errores += 'La dirección es obligatoria.' + CHAR(13);
 
-    IF EXISTS (SELECT 1 FROM ct.Sucursal 
+    IF EXISTS (SELECT 1 FROM productos.Sucursal 
                WHERE nombre = @nombre 
                AND id_sucursal <> @id_sucursal)
         SET @errores += 'Ya existe otra sucursal con ese nombre.' + CHAR(13);
@@ -113,7 +113,7 @@ BEGIN
         RETURN;
     END;
 
-    UPDATE ct.Sucursal
+    UPDATE productos.Sucursal
     SET nombre = @nombre,
         direccion = @direccion
     WHERE id_sucursal = @id_sucursal;
@@ -133,10 +133,10 @@ BEGIN
     SET NOCOUNT ON;
     DECLARE @errores NVARCHAR(MAX) = '';
 
-    IF NOT EXISTS (SELECT 1 FROM ct.Sucursal WHERE id_sucursal = @id_sucursal)
+    IF NOT EXISTS (SELECT 1 FROM productos.Sucursal WHERE id_sucursal = @id_sucursal)
         SET @errores += 'La sucursal indicada no existe.' + CHAR(13);
 
-    IF EXISTS (SELECT 1 FROM ct.Stock WHERE id_sucursal = @id_sucursal)
+    IF EXISTS (SELECT 1 FROM productos.Stock WHERE id_sucursal = @id_sucursal)
         SET @errores += 'No se puede eliminar la sucursal porque posee stock asociado.' + CHAR(13);
 
     IF (@errores <> '')
@@ -145,7 +145,7 @@ BEGIN
         RETURN;
     END;
 
-    DELETE FROM ct.Sucursal
+    DELETE FROM productos.Sucursal
     WHERE id_sucursal = @id_sucursal;
 END
 GO
@@ -173,7 +173,7 @@ BEGIN
     SET NOCOUNT ON;
     DECLARE @errores NVARCHAR(MAX) = '';
 
-    IF NOT EXISTS (SELECT 1 FROM ct.Sucursal WHERE id_sucursal = @id_sucursal)
+    IF NOT EXISTS (SELECT 1 FROM productos.Sucursal WHERE id_sucursal = @id_sucursal)
         SET @errores += 'La sucursal indicada no existe.' + CHAR(13);
 
     IF (@stock_minimo < 0)
@@ -182,7 +182,7 @@ BEGIN
     IF (@fecha_ultima_actualizacion > GETDATE())
         SET @errores += 'La fecha no puede ser futura.' + CHAR(13);
 
-    IF EXISTS (SELECT 1 FROM ct.Stock WHERE id_sucursal = @id_sucursal)
+    IF EXISTS (SELECT 1 FROM productos.Stock WHERE id_sucursal = @id_sucursal)
         SET @errores += 'Ya existe stock para esa sucursal.' + CHAR(13);
 
     IF (@errores <> '')
@@ -191,7 +191,7 @@ BEGIN
         RETURN;
     END;
 
-    INSERT INTO ct.Stock(id_sucursal, stock_minimo, fecha_ultima_actualizacion)
+    INSERT INTO productos.Stock(id_sucursal, stock_minimo, fecha_ultima_actualizacion)
     VALUES(@id_sucursal, @stock_minimo, @fecha_ultima_actualizacion);
 END
 GO
@@ -211,7 +211,7 @@ BEGIN
     SET NOCOUNT ON;
     DECLARE @errores NVARCHAR(MAX) = '';
 
-    IF NOT EXISTS (SELECT 1 FROM ct.Stock WHERE id_stock = @id_stock)
+    IF NOT EXISTS (SELECT 1 FROM productos.Stock WHERE id_stock = @id_stock)
         SET @errores += 'El registro de stock indicado no existe.' + CHAR(13);
 
     IF (@stock_minimo < 0)
@@ -226,7 +226,7 @@ BEGIN
         RETURN;
     END;
 
-    UPDATE ct.Stock
+    UPDATE productos.Stock
     SET stock_minimo = @stock_minimo,
         fecha_ultima_actualizacion = @fecha_ultima_actualizacion
     WHERE id_stock = @id_stock;
@@ -246,7 +246,7 @@ BEGIN
     SET NOCOUNT ON;
     DECLARE @errores NVARCHAR(MAX) = '';
 
-    IF NOT EXISTS (SELECT 1 FROM ct.Stock WHERE id_stock = @id_stock)
+    IF NOT EXISTS (SELECT 1 FROM productos.Stock WHERE id_stock = @id_stock)
         SET @errores += 'El registro de stock indicado no existe.' + CHAR(13);
 
     IF (@errores <> '')
@@ -255,7 +255,7 @@ BEGIN
         RETURN;
     END;
 
-    DELETE FROM ct.Stock
+    DELETE FROM productos.Stock
     WHERE id_stock = @id_stock;
 END
 GO
@@ -292,7 +292,7 @@ BEGIN
     IF (@fecha_inicio >= @fecha_fin)
         SET @errores += 'La fecha de inicio debe ser menor a la fecha de fin.' + CHAR(13);
 
-    IF EXISTS (SELECT 1 FROM ct.Temporada WHERE nombre = @nombre)
+    IF EXISTS (SELECT 1 FROM productos.Temporada WHERE nombre = @nombre)
         SET @errores += 'Ya existe una temporada con ese nombre.' + CHAR(13);
 
     IF (@errores <> '')
@@ -301,7 +301,7 @@ BEGIN
         RETURN;
     END;
 
-    INSERT INTO ct.Temporada(nombre, descripcion, fecha_inicio, fecha_fin)
+    INSERT INTO productos.Temporada(nombre, descripcion, fecha_inicio, fecha_fin)
     VALUES(@nombre, @descripcion, @fecha_inicio, @fecha_fin);
 END
 GO
@@ -322,7 +322,7 @@ BEGIN
     SET NOCOUNT ON;
     DECLARE @errores NVARCHAR(MAX) = '';
 
-    IF NOT EXISTS (SELECT 1 FROM ct.Temporada WHERE id_temporada = @id_temporada)
+    IF NOT EXISTS (SELECT 1 FROM productos.Temporada WHERE id_temporada = @id_temporada)
         SET @errores += 'La temporada indicada no existe.' + CHAR(13);
 
     IF (@nombre IS NULL OR LTRIM(RTRIM(@nombre)) = '')
@@ -334,7 +334,7 @@ BEGIN
     IF (@fecha_inicio >= @fecha_fin)
         SET @errores += 'La fecha de inicio debe ser menor a la fecha de fin.' + CHAR(13);
 
-    IF EXISTS (SELECT 1 FROM ct.Temporada 
+    IF EXISTS (SELECT 1 FROM productos.Temporada 
                WHERE nombre = @nombre 
                AND id_temporada <> @id_temporada)
         SET @errores += 'Ya existe otra temporada con ese nombre.' + CHAR(13);
@@ -345,7 +345,7 @@ BEGIN
         RETURN;
     END;
 
-    UPDATE ct.Temporada
+    UPDATE productos.Temporada
     SET nombre = @nombre,
         descripcion = @descripcion,
         fecha_inicio = @fecha_inicio,
@@ -367,10 +367,10 @@ BEGIN
     SET NOCOUNT ON;
     DECLARE @errores NVARCHAR(MAX) = '';
 
-    IF NOT EXISTS (SELECT 1 FROM ct.Temporada WHERE id_temporada = @id_temporada)
+    IF NOT EXISTS (SELECT 1 FROM productos.Temporada WHERE id_temporada = @id_temporada)
         SET @errores += 'La temporada indicada no existe.' + CHAR(13);
 
-    IF EXISTS (SELECT 1 FROM ct.Producto WHERE id_temporada = @id_temporada)
+    IF EXISTS (SELECT 1 FROM productos.Producto WHERE id_temporada = @id_temporada)
         SET @errores += 'No se puede eliminar la temporada porque está asociada a productos.' + CHAR(13);
 
     IF (@errores <> '')
@@ -379,7 +379,7 @@ BEGIN
         RETURN;
     END;
 
-    DELETE FROM ct.Temporada
+    DELETE FROM productos.Temporada
     WHERE id_temporada = @id_temporada;
 END
 GO
@@ -411,7 +411,7 @@ BEGIN
     IF (@margen_ganancia <= 0)
         SET @errores += 'El margen de ganancia debe ser mayor a 0.' + CHAR(13);
 
-    IF EXISTS (SELECT 1 FROM ct.Categoria WHERE nombre = @nombre)
+    IF EXISTS (SELECT 1 FROM productos.Categoria WHERE nombre = @nombre)
         SET @errores += 'Ya existe una categoría con ese nombre.' + CHAR(13);
 
     IF (@errores <> '')
@@ -420,7 +420,7 @@ BEGIN
         RETURN;
     END;
 
-    INSERT INTO ct.Categoria(nombre, margen_ganancia)
+    INSERT INTO productos.Categoria(nombre, margen_ganancia)
     VALUES(@nombre, @margen_ganancia);
 END
 GO
@@ -439,7 +439,7 @@ BEGIN
     SET NOCOUNT ON;
     DECLARE @errores NVARCHAR(MAX) = '';
 
-    IF NOT EXISTS (SELECT 1 FROM ct.Categoria WHERE id_categoria = @id_categoria)
+    IF NOT EXISTS (SELECT 1 FROM productos.Categoria WHERE id_categoria = @id_categoria)
         SET @errores += 'La categoría indicada no existe.' + CHAR(13);
 
     IF (@nombre IS NULL OR LTRIM(RTRIM(@nombre)) = '')
@@ -448,7 +448,7 @@ BEGIN
     IF (@margen_ganancia <= 0)
         SET @errores += 'El margen de ganancia debe ser mayor a 0.' + CHAR(13);
 
-    IF EXISTS (SELECT 1 FROM ct.Categoria 
+    IF EXISTS (SELECT 1 FROM productos.Categoria 
                WHERE nombre = @nombre 
                AND id_categoria <> @id_categoria)
         SET @errores += 'Ya existe otra categoría con ese nombre.' + CHAR(13);
@@ -459,7 +459,7 @@ BEGIN
         RETURN;
     END;
 
-    UPDATE ct.Categoria
+    UPDATE productos.Categoria
     SET nombre = @nombre,
         margen_ganancia = @margen_ganancia
     WHERE id_categoria = @id_categoria;
@@ -478,10 +478,10 @@ BEGIN
     SET NOCOUNT ON;
     DECLARE @errores NVARCHAR(MAX) = '';
 
-    IF NOT EXISTS (SELECT 1 FROM ct.Categoria WHERE id_categoria = @id_categoria)
+    IF NOT EXISTS (SELECT 1 FROM productos.Categoria WHERE id_categoria = @id_categoria)
         SET @errores += 'La categoría indicada no existe.' + CHAR(13);
 
-    IF EXISTS (SELECT 1 FROM ct.Producto WHERE id_categoria = @id_categoria)
+    IF EXISTS (SELECT 1 FROM productos.Producto WHERE id_categoria = @id_categoria)
         SET @errores += 'No se puede eliminar la categoría porque está asociada a productos.' + CHAR(13);
 
     IF (@errores <> '')
@@ -490,7 +490,7 @@ BEGIN
         RETURN;
     END;
 
-    DELETE FROM ct.Categoria
+    DELETE FROM productos.Categoria
     WHERE id_categoria = @id_categoria;
 END
 GO
@@ -528,7 +528,7 @@ BEGIN
     IF (@cuit IS NULL OR LTRIM(RTRIM(@cuit)) = '')
         SET @errores += 'El CUIT es obligatorio.' + CHAR(13);
 
-    IF EXISTS (SELECT 1 FROM ct.Proveedor WHERE cuit = @cuit)
+    IF EXISTS (SELECT 1 FROM proveedores.Proveedor WHERE cuit = @cuit)
         SET @errores += 'Ya existe un proveedor con ese CUIT.' + CHAR(13);
 
     IF (@errores <> '')
@@ -537,7 +537,7 @@ BEGIN
         RETURN;
     END;
 
-    INSERT INTO ct.Proveedor(nombre, apellido, telefono, cuit)
+    INSERT INTO proveedores.Proveedor(nombre, apellido, telefono, cuit)
     VALUES(@nombre, @apellido, @telefono, @cuit);
 END
 GO
@@ -558,10 +558,10 @@ BEGIN
     SET NOCOUNT ON;
     DECLARE @errores NVARCHAR(MAX) = '';
 
-    IF NOT EXISTS (SELECT 1 FROM ct.Proveedor WHERE id_proveedor = @id_proveedor)
+    IF NOT EXISTS (SELECT 1 FROM proveedores.Proveedor WHERE id_proveedor = @id_proveedor)
         SET @errores += 'El proveedor indicado no existe.' + CHAR(13);
 
-    IF EXISTS (SELECT 1 FROM ct.Proveedor 
+    IF EXISTS (SELECT 1 FROM proveedores.Proveedor 
                WHERE cuit = @cuit 
                AND id_proveedor <> @id_proveedor)
         SET @errores += 'Ya existe otro proveedor con ese CUIT.' + CHAR(13);
@@ -572,7 +572,7 @@ BEGIN
         RETURN;
     END;
 
-    UPDATE ct.Proveedor
+    UPDATE proveedores.Proveedor
     SET nombre = @nombre,
         apellido = @apellido,
         telefono = @telefono,
@@ -594,10 +594,10 @@ BEGIN
     SET NOCOUNT ON;
     DECLARE @errores NVARCHAR(MAX) = '';
 
-    IF NOT EXISTS (SELECT 1 FROM ct.Proveedor WHERE id_proveedor = @id_proveedor)
+    IF NOT EXISTS (SELECT 1 FROM proveedores.Proveedor WHERE id_proveedor = @id_proveedor)
         SET @errores += 'El proveedor indicado no existe.' + CHAR(13);
 
-    IF EXISTS (SELECT 1 FROM ct.Producto WHERE id_proveedor = @id_proveedor)
+    IF EXISTS (SELECT 1 FROM proveedores.Producto WHERE id_proveedor = @id_proveedor)
         SET @errores += 'No se puede eliminar el proveedor porque posee productos asociados.' + CHAR(13);
 
     IF (@errores <> '')
@@ -606,7 +606,7 @@ BEGIN
         RETURN;
     END;
 
-    DELETE FROM ct.Proveedor WHERE id_proveedor = @id_proveedor;
+    DELETE FROM proveedores.Proveedor WHERE id_proveedor = @id_proveedor;
 END
 GO
 
@@ -644,19 +644,19 @@ BEGIN
     IF (@vida_util <= 0)
         SET @errores += 'La vida útil debe ser mayor a 0.' + CHAR(13);
 
-    IF NOT EXISTS (SELECT 1 FROM ct.Categoria WHERE id_categoria = @id_categoria)
+    IF NOT EXISTS (SELECT 1 FROM productos.Categoria WHERE id_categoria = @id_categoria)
         SET @errores += 'La categoría indicada no existe.' + CHAR(13);
 
     IF (@id_proveedor IS NOT NULL AND 
-        NOT EXISTS (SELECT 1 FROM ct.Proveedor WHERE id_proveedor = @id_proveedor))
+        NOT EXISTS (SELECT 1 FROM productos.Proveedor WHERE id_proveedor = @id_proveedor))
         SET @errores += 'El proveedor indicado no existe.' + CHAR(13);
 
     IF (@id_temporada IS NOT NULL AND 
-        NOT EXISTS (SELECT 1 FROM ct.Temporada WHERE id_temporada = @id_temporada))
+        NOT EXISTS (SELECT 1 FROM productos.Temporada WHERE id_temporada = @id_temporada))
         SET @errores += 'La temporada indicada no existe.' + CHAR(13);
 
     IF (@id_stock IS NOT NULL AND 
-        NOT EXISTS (SELECT 1 FROM ct.Stock WHERE id_stock = @id_stock))
+        NOT EXISTS (SELECT 1 FROM productos.Stock WHERE id_stock = @id_stock))
         SET @errores += 'El stock indicado no existe.' + CHAR(13);
 
     IF (@errores <> '')
@@ -665,7 +665,7 @@ BEGIN
         RETURN;
     END;
 
-    INSERT INTO ct.Producto
+    INSERT INTO productos.Producto
     (nombre, descripcion, forma_comercializacion, tipo_producto_agricola,
      vida_util, id_categoria, id_stock, id_temporada, id_proveedor)
     VALUES
@@ -679,13 +679,13 @@ CREATE OR ALTER PROCEDURE csp.BajaProducto
     @id_producto INT
 AS
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM ct.Producto WHERE id_producto = @id_producto)
+    IF NOT EXISTS (SELECT 1 FROM productos.Producto WHERE id_producto = @id_producto)
     BEGIN
         RAISERROR('El producto no existe.',16,1);
         RETURN;
     END;
 
-    DELETE FROM ct.Producto WHERE id_producto = @id_producto;
+    DELETE FROM productos.Producto WHERE id_producto = @id_producto;
 END
 GO
 
@@ -713,13 +713,13 @@ BEGIN
     SET NOCOUNT ON;
     DECLARE @errores NVARCHAR(MAX) = '';
 
-    IF NOT EXISTS (SELECT 1 FROM ct.Producto WHERE id_producto = @id_producto)
+    IF NOT EXISTS (SELECT 1 FROM productos.Producto WHERE id_producto = @id_producto)
         SET @errores += 'El producto no existe.' + CHAR(13);
 
-    IF NOT EXISTS (SELECT 1 FROM ct.Proveedor WHERE id_proveedor = @id_proveedor)
+    IF NOT EXISTS (SELECT 1 FROM proveedores.Proveedor WHERE id_proveedor = @id_proveedor)
         SET @errores += 'El proveedor no existe.' + CHAR(13);
 
-    IF EXISTS (SELECT 1 FROM ct.ListaPrecio 
+    IF EXISTS (SELECT 1 FROM proveedores.ListaPrecio 
                WHERE id_producto = @id_producto 
                AND id_proveedor = @id_proveedor 
                AND id_listaPrecio = @id_listaPrecio)
@@ -734,7 +734,7 @@ BEGIN
         RETURN;
     END;
 
-    INSERT INTO ct.ListaPrecio
+    INSERT INTO proveedores.ListaPrecio
     VALUES (@id_listaPrecio, @id_producto, @id_proveedor, @formato);
 END
 GO
@@ -751,7 +751,7 @@ CREATE OR ALTER PROCEDURE csp.BajaListaPrecio
     @id_proveedor INT
 AS
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM ct.ListaPrecio 
+    IF NOT EXISTS (SELECT 1 FROM proveedores.ListaPrecio 
                    WHERE id_listaPrecio = @id_listaPrecio
                    AND id_producto = @id_producto
                    AND id_proveedor = @id_proveedor)
@@ -760,7 +760,7 @@ BEGIN
         RETURN;
     END;
 
-    DELETE FROM ct.ListaPrecio
+    DELETE FROM proveedores.ListaPrecio
     WHERE id_listaPrecio = @id_listaPrecio
       AND id_producto = @id_producto
       AND id_proveedor = @id_proveedor;
@@ -794,7 +794,7 @@ BEGIN
     SET NOCOUNT ON;
     DECLARE @errores NVARCHAR(MAX) = '';
 
-    IF NOT EXISTS (SELECT 1 FROM ct.Producto WHERE id_producto = @id_producto)
+    IF NOT EXISTS (SELECT 1 FROM productos.Producto WHERE id_producto = @id_producto)
         SET @errores += 'El producto no existe.' + CHAR(13);
 
     IF (@cantidad_inicial <= 0)
@@ -806,7 +806,7 @@ BEGIN
     IF (@fecha_ingreso > @fecha_vencimiento)
         SET @errores += 'La fecha de ingreso no puede ser mayor a la de vencimiento.' + CHAR(13);
 
-    IF EXISTS (SELECT 1 FROM ct.Lote 
+    IF EXISTS (SELECT 1 FROM productos.Lote 
                WHERE id_lote = @id_lote 
                AND id_producto = @id_producto)
         SET @errores += 'El lote ya existe.' + CHAR(13);
@@ -817,7 +817,7 @@ BEGIN
         RETURN;
     END;
 
-    INSERT INTO ct.Lote
+    INSERT INTO productos.Lote
     VALUES (@id_lote, @id_producto, @cantidad_inicial,
             @costo, @fecha_ingreso, @fecha_vencimiento);
 END
@@ -833,7 +833,7 @@ CREATE OR ALTER PROCEDURE csp.ModificarLote
     @fecha_vencimiento DATE
 AS
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM ct.Lote 
+    IF NOT EXISTS (SELECT 1 FROM productos.Lote 
                    WHERE id_lote = @id_lote 
                    AND id_producto = @id_producto)
     BEGIN
@@ -841,7 +841,7 @@ BEGIN
         RETURN;
     END;
 
-    UPDATE ct.Lote
+    UPDATE productos.Lote
     SET cantidad_inicial = @cantidad_inicial,
         costo = @costo,
         fecha_ingreso = @fecha_ingreso,
@@ -857,7 +857,7 @@ CREATE OR ALTER PROCEDURE csp.BajaLote
     @id_producto INT
 AS
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM ct.Lote 
+    IF NOT EXISTS (SELECT 1 FROM productos.Lote 
                    WHERE id_lote = @id_lote 
                    AND id_producto = @id_producto)
     BEGIN
@@ -865,7 +865,7 @@ BEGIN
         RETURN;
     END;
 
-    DELETE FROM ct.Lote
+    DELETE FROM productos.Lote
     WHERE id_lote = @id_lote
       AND id_producto = @id_producto;
 END
@@ -909,7 +909,7 @@ BEGIN
         RETURN;
     END;
 
-    INSERT INTO ct.Cliente(nombre, apellido, telefono, direccion, tipo)
+    INSERT INTO ventas.Cliente(nombre, apellido, telefono, direccion, tipo)
     VALUES(@nombre, @apellido, @telefono, @direccion, @tipo);
 END
 GO
@@ -929,13 +929,13 @@ CREATE OR ALTER PROCEDURE csp.ModificarCliente
     @tipo VARCHAR(100)
 AS
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM ct.Cliente WHERE id_cliente = @id_cliente)
+    IF NOT EXISTS (SELECT 1 FROM ventas.Cliente WHERE id_cliente = @id_cliente)
     BEGIN
         RAISERROR('El cliente no existe.',16,1);
         RETURN;
     END;
 
-    UPDATE ct.Cliente
+    UPDATE ventas.Cliente
     SET nombre = @nombre,
         apellido = @apellido,
         telefono = @telefono,
@@ -950,7 +950,7 @@ CREATE OR ALTER PROCEDURE csp.BajaCliente
     @id_cliente INT
 AS
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM ct.Cliente WHERE id_cliente = @id_cliente)
+    IF NOT EXISTS (SELECT 1 FROM ventas.Cliente WHERE id_cliente = @id_cliente)
     BEGIN
         RAISERROR('El cliente no existe.',16,1);
         RETURN;
@@ -993,7 +993,7 @@ BEGIN
     IF (@apellido IS NULL OR LTRIM(RTRIM(@apellido)) = '')
         SET @errores += 'El apellido es obligatorio.' + CHAR(13);
 
-    IF EXISTS (SELECT 1 FROM ct.Capacitador WHERE numero_registro = @numero_registro)
+    IF EXISTS (SELECT 1 FROM ventas.Capacitador WHERE numero_registro = @numero_registro)
         SET @errores += 'Ya existe un capacitador con ese número de registro.' + CHAR(13);
 
     IF (@errores <> '')
@@ -1002,7 +1002,7 @@ BEGIN
         RETURN;
     END;
 
-    INSERT INTO ct.Capacitador
+    INSERT INTO ventas.Capacitador
     (numero_registro, nombre, apellido, telefono, mail)
     VALUES
     (@numero_registro, @nombre, @apellido, @telefono, @mail);
@@ -1021,11 +1021,11 @@ AS
 BEGIN
     DECLARE @errores NVARCHAR(MAX) = '';
 
-    IF NOT EXISTS (SELECT 1 FROM ct.Capacitador WHERE id_capacitador = @id_capacitador)
+    IF NOT EXISTS (SELECT 1 FROM ventas.Capacitador WHERE id_capacitador = @id_capacitador)
         SET @errores += 'El capacitador no existe.' + CHAR(13);
 
     IF EXISTS (
-        SELECT 1 FROM ct.Capacitador 
+        SELECT 1 FROM ventas.Capacitador 
         WHERE numero_registro = @numero_registro 
         AND id_capacitador <> @id_capacitador)
         SET @errores += 'Ya existe otro capacitador con ese número de registro.' + CHAR(13);
@@ -1036,7 +1036,7 @@ BEGIN
         RETURN;
     END;
 
-    UPDATE ct.Capacitador
+    UPDATE ventas.Capacitador
     SET numero_registro = @numero_registro,
         nombre = @nombre,
         apellido = @apellido,
@@ -1050,13 +1050,13 @@ CREATE OR ALTER PROCEDURE csp.BajaCapacitador
     @id_capacitador INT
 AS
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM ct.Capacitador WHERE id_capacitador = @id_capacitador)
+    IF NOT EXISTS (SELECT 1 FROM ventas.Capacitador WHERE id_capacitador = @id_capacitador)
     BEGIN
         RAISERROR('El capacitador no existe.',16,1);
         RETURN;
     END;
 
-    DELETE FROM ct.Capacitador
+    DELETE FROM ventas.Capacitador
     WHERE id_capacitador = @id_capacitador;
 END
 GO
@@ -1081,7 +1081,7 @@ BEGIN
     SET NOCOUNT ON;
     DECLARE @errores NVARCHAR(MAX) = '';
 
-    IF NOT EXISTS (SELECT 1 FROM ct.Capacitador WHERE id_capacitador = @id_capacitador)
+    IF NOT EXISTS (SELECT 1 FROM ventas.Capacitador WHERE id_capacitador = @id_capacitador)
         SET @errores += 'El capacitador no existe.' + CHAR(13);
 
     IF (@fecha_capacitacion > GETDATE())
@@ -1093,7 +1093,7 @@ BEGIN
         RETURN;
     END;
 
-    INSERT INTO ct.Certificado(id_capacitador, fecha_capacitacion)
+    INSERT INTO ventas.Certificado(id_capacitador, fecha_capacitacion)
     VALUES(@id_capacitador, @fecha_capacitacion);
 END
 GO
@@ -1103,19 +1103,19 @@ CREATE OR ALTER PROCEDURE csp.BajaCertificado
     @id_certificado INT
 AS
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM ct.Certificado WHERE id_certificado = @id_certificado)
+    IF NOT EXISTS (SELECT 1 FROM ventas.Certificado WHERE id_certificado = @id_certificado)
     BEGIN
         RAISERROR('El certificado no existe.',16,1);
         RETURN;
     END;
 
-    IF EXISTS (SELECT 1 FROM ct.Vendedor WHERE id_certificado = @id_certificado)
+    IF EXISTS (SELECT 1 FROM ventas.Vendedor WHERE id_certificado = @id_certificado)
     BEGIN
         RAISERROR('No se puede eliminar el certificado porque está asociado a un vendedor.',16,1);
         RETURN;
     END;
 
-    DELETE FROM ct.Certificado
+    DELETE FROM ventas.Certificado
     WHERE id_certificado = @id_certificado;
 END
 GO
@@ -1144,13 +1144,13 @@ BEGIN
     SET NOCOUNT ON;
     DECLARE @errores NVARCHAR(MAX) = '';
 
-    IF NOT EXISTS (SELECT 1 FROM ct.Sucursal WHERE id_sucursal = @id_sucursal)
+    IF NOT EXISTS (SELECT 1 FROM productos.Sucursal WHERE id_sucursal = @id_sucursal)
         SET @errores += 'La sucursal no existe.' + CHAR(13);
 
-    IF NOT EXISTS (SELECT 1 FROM ct.Certificado WHERE id_certificado = @id_certificado)
+    IF NOT EXISTS (SELECT 1 FROM productos.Certificado WHERE id_certificado = @id_certificado)
         SET @errores += 'El certificado no existe.' + CHAR(13);
 
-    IF EXISTS (SELECT 1 FROM ct.Vendedor 
+    IF EXISTS (SELECT 1 FROM ventas.Vendedor 
                WHERE id_vendedor = @id_vendedor 
                AND id_sucursal = @id_sucursal)
         SET @errores += 'El vendedor ya existe en esa sucursal.' + CHAR(13);
@@ -1161,7 +1161,7 @@ BEGIN
         RETURN;
     END;
 
-    INSERT INTO ct.Vendedor
+    INSERT INTO ventas.Vendedor
     VALUES(@id_vendedor, @nombre, @apellido, @id_sucursal, @id_certificado);
 END
 GO
@@ -1176,7 +1176,7 @@ CREATE OR ALTER PROCEDURE csp.BajaVendedor
     @id_sucursal INT
 AS
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM ct.Vendedor 
+    IF NOT EXISTS (SELECT 1 FROM ventas.Vendedor 
                    WHERE id_vendedor = @id_vendedor 
                    AND id_sucursal = @id_sucursal)
     BEGIN
@@ -1184,7 +1184,7 @@ BEGIN
         RETURN;
     END;
 
-    DELETE FROM ct.Vendedor
+    DELETE FROM ventas.Vendedor
     WHERE id_vendedor = @id_vendedor
       AND id_sucursal = @id_sucursal;
 END
@@ -1227,7 +1227,7 @@ BEGIN
         SET @errores += 'Canal inválido.' + CHAR(13);
 
     IF NOT EXISTS (
-        SELECT 1 FROM ct.Vendedor
+        SELECT 1 FROM ventas.Vendedor
         WHERE id_vendedor = @id_vendedor
         AND id_sucursal = @id_sucursal)
         SET @errores += 'El vendedor no existe en esa sucursal.' + CHAR(13);
@@ -1242,7 +1242,7 @@ BEGIN
         RETURN;
     END;
 
-    INSERT INTO ct.Venta
+    INSERT INTO ventas.Venta
     VALUES(@fecha, @modalidad, @canal, @id_vendedor, @id_sucursal, @id_cliente);
 END
 GO
@@ -1256,19 +1256,19 @@ CREATE OR ALTER PROCEDURE csp.BajaVenta
     @id_venta INT
 AS
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM ct.Venta WHERE id_venta = @id_venta)
+    IF NOT EXISTS (SELECT 1 FROM ventas.Venta WHERE id_venta = @id_venta)
     BEGIN
         RAISERROR('La venta no existe.',16,1);
         RETURN;
     END;
 
-    IF EXISTS (SELECT 1 FROM ct.DetalleVenta WHERE id_venta = @id_venta)
+    IF EXISTS (SELECT 1 FROM ventas.DetalleVenta WHERE id_venta = @id_venta)
     BEGIN
         RAISERROR('No se puede eliminar la venta porque tiene detalles asociados.',16,1);
         RETURN;
     END;
 
-    DELETE FROM ct.Venta WHERE id_venta = @id_venta;
+    DELETE FROM ventas.Venta WHERE id_venta = @id_venta;
 END
 GO
 
@@ -1340,12 +1340,12 @@ BEGIN
     DECLARE @stockDisponible INT;
 
     -- Validar venta
-    IF NOT EXISTS (SELECT 1 FROM ct.Venta WHERE id_venta = @id_venta)
+    IF NOT EXISTS (SELECT 1 FROM ventas.Venta WHERE id_venta = @id_venta)
         SET @errores += 'La venta no existe.' + CHAR(13);
 
     -- Validar lote
     IF NOT EXISTS (
-        SELECT 1 FROM ct.Lote
+        SELECT 1 FROM productos.Lote
         WHERE id_lote = @id_lote
         AND id_producto = @id_producto)
         SET @errores += 'El lote no existe.' + CHAR(13);
@@ -1358,7 +1358,7 @@ BEGIN
     SELECT 
         @fechaVenc = fecha_vencimiento,
         @stockDisponible = cantidad_inicial
-    FROM ct.Lote
+    FROM productos.Lote
     WHERE id_lote = @id_lote
       AND id_producto = @id_producto;
 
@@ -1377,11 +1377,11 @@ BEGIN
     END;
 
     -- Insertar detalle
-    INSERT INTO ct.DetalleVenta
+    INSERT INTO ventas.DetalleVenta
     VALUES(@id_venta, @id_lote, @id_producto, @cantidad, @precio_unitario);
 
     -- Descontar stock
-    UPDATE ct.Lote
+    UPDATE productos.Lote
     SET cantidad_inicial = cantidad_inicial - @cantidad
     WHERE id_lote = @id_lote
       AND id_producto = @id_producto;
@@ -1399,13 +1399,13 @@ CREATE OR ALTER PROCEDURE csp.BajaDetalleVenta
     @id_venta INT
 AS
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM ct.DetalleVenta WHERE id_venta = @id_venta)
+    IF NOT EXISTS (SELECT 1 FROM ventas.DetalleVenta WHERE id_venta = @id_venta)
     BEGIN
         RAISERROR('El detalle no existe.',16,1);
         RETURN;
     END;
 
-    DELETE FROM ct.DetalleVenta
+    DELETE FROM ventas.DetalleVenta
     WHERE id_venta = @id_venta;
 END
 GO
@@ -1457,7 +1457,7 @@ BEGIN
         RETURN;
     END;
 
-    INSERT INTO ct.PrecioMayorista
+    INSERT INTO importaciones.PrecioMayorista
     (fecha, tipo_producto, especie, precio_mayorista)
     VALUES
     (@fecha, @tipo_producto, @especie, @precio_mayorista);
@@ -1481,13 +1481,13 @@ BEGIN
 
     IF EXISTS (
         SELECT 1 
-        FROM ct.Merma
+        FROM importaciones.Merma
         WHERE id_producto = @id_producto
           AND id_sucursal = @id_sucursal
           AND fecha = @fecha
     )
     BEGIN
-        UPDATE ct.Merma
+        UPDATE importaciones.Merma
         SET cantidad = cantidad + @cantidad
         WHERE id_producto = @id_producto
           AND id_sucursal = @id_sucursal

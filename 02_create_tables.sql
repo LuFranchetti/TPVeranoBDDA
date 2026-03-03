@@ -8,46 +8,58 @@
 
 
     Descripción: Creación de las tablas (productivas) de la base Com2343
-		ct.Sucursal
-		ct.Stock
-		ct.Temporada
-		ct.Categoria
-		ct.Proveedor
-		ct.Producto
-		ct.ListaPrecio	
-		ct.Lote
-		ct.Cliente
-		ct.Capacitador
-		ct.Certificado
-		ct.Vendedor
-		ct.Venta
-		ct.DetalleVenta
-		ct.Merma
-		ct.EstimacionAgricola
-		ct.PrecioMayorista
-		ct.ErroresMermas
-		ct.LogImportacionMermas
-		ct.ErroresEstimaciones
-		ct.LogImportacionEstimaciones
-		ct.ErroresCapacitadores
-		ct.LogImportacionCapacitadores
-		ct.ErroresPrecios
-		ct.LogImportacionPrecios
+		productos.Sucursal
+		productos.Stock
+		productos.Temporada
+		productos.Categoria
+		proveedores.Proveedor
+		productos.Producto
+		proveedores.ListaPrecio	
+		productos.Lote
+		ventas.Cliente
+		ventas.Capacitador
+		ventas.Certificado
+		ventas.Vendedor
+		ventas.Venta
+		ventas.DetalleVenta
+		importaciones.Merma
+		importaciones.EstimacionAgricola
+		importaciones.PrecioMayorista
+		importaciones.ErroresMermas
+		importaciones.LogImportacionMermas
+		importaciones.ErroresEstimaciones
+		importaciones.LogImportacionEstimaciones
+		importaciones.ErroresCapacitadores
+		importaciones.LogImportacionCapacitadores
+		importaciones.ErroresPrecios
+		importaciones.LogImportacionPrecios
 */
 
-USE Com2343
--- ==========  CREACION DE ESQUEMAS  =============
-IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'ct') -- CARGAR TABLAS
-BEGIN
-	EXEC('CREATE SCHEMA ct')
-END 
+USE Com2343;
 GO
 
+/* =========================================================
+   CREACIÓN DE ESQUEMAS POR DOMINIO FUNCIONAL
+========================================================= */
 
-IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'csp') -- CARGAR SP
-BEGIN
-	EXEC('CREATE SCHEMA csp')
-END 
+IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'ventas')
+    EXEC('CREATE SCHEMA ventas');
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'productos')
+    EXEC('CREATE SCHEMA productos');
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'proveedores')
+    EXEC('CREATE SCHEMA proveedores');
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'importaciones')
+    EXEC('CREATE SCHEMA importaciones');
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'csp')
+    EXEC('CREATE SCHEMA csp');
 GO
 
 --  =================  CREACION DE TABLAS  =================
@@ -56,9 +68,9 @@ GO
 -- 1. SUCURSAL
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
-               WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Sucursal')
+               WHERE TABLE_SCHEMA = 'productos' AND TABLE_NAME = 'Sucursal')
 BEGIN
-    CREATE TABLE ct.Sucursal (
+    CREATE TABLE productos.Sucursal (
         id_sucursal INT IDENTITY(1,1) PRIMARY KEY,
         nombre VARCHAR(100) NOT NULL,
         direccion VARCHAR(200) NOT NULL
@@ -69,16 +81,16 @@ GO
 -- 2. STOCK
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
-               WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Stock')
+               WHERE TABLE_SCHEMA = 'productos' AND TABLE_NAME = 'Stock')
 BEGIN
-    CREATE TABLE ct.Stock (
+    CREATE TABLE productos.Stock (
         id_stock INT IDENTITY(1,1) PRIMARY KEY,
         id_sucursal INT NOT NULL,
         stock_minimo INT NOT NULL,
         fecha_ultima_actualizacion DATETIME NOT NULL,
        
         CONSTRAINT FK_Stock_Sucursal 
-            FOREIGN KEY (id_sucursal) REFERENCES ct.Sucursal(id_sucursal)
+            FOREIGN KEY (id_sucursal) REFERENCES productos.Sucursal(id_sucursal)
     );
 END
 GO
@@ -87,9 +99,9 @@ GO
 -- 3. TEMPORADA
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
-               WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Temporada')
+               WHERE TABLE_SCHEMA = 'productos' AND TABLE_NAME = 'Temporada')
 BEGIN
-    CREATE TABLE ct.Temporada (
+    CREATE TABLE productos.Temporada (
         id_temporada INT IDENTITY(1,1) PRIMARY KEY,
         nombre VARCHAR(50) NOT NULL,
 		descripcion VARCHAR(50) NOT NULL,
@@ -103,9 +115,9 @@ GO
 -- 4. CATEGORIA
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
-               WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Categoria')
+               WHERE TABLE_SCHEMA = 'productos' AND TABLE_NAME = 'Categoria')
 BEGIN
-    CREATE TABLE ct.Categoria (
+    CREATE TABLE productos.Categoria (
         id_categoria INT IDENTITY(1,1) PRIMARY KEY,
         nombre VARCHAR(50) NOT NULL,
         margen_ganancia DECIMAL(5,2) NOT NULL
@@ -118,9 +130,9 @@ GO
 -- 5. PROVEEDOR
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
-               WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Proveedor')
+               WHERE TABLE_SCHEMA = 'proveedores' AND TABLE_NAME = 'Proveedor')
 BEGIN
-    CREATE TABLE ct.Proveedor (
+    CREATE TABLE proveedores.Proveedor (
         id_proveedor INT IDENTITY(1,1) PRIMARY KEY,
         nombre VARCHAR(100) NOT NULL,
 		apellido VARCHAR(100) NOT NULL,
@@ -135,9 +147,9 @@ GO
 -- 6. PRODUCTO
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
-               WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Producto')
+               WHERE TABLE_SCHEMA = 'productos' AND TABLE_NAME = 'Producto')
 BEGIN
-    CREATE TABLE ct.Producto (
+    CREATE TABLE productos.Producto (
         id_producto INT IDENTITY(1,1) PRIMARY KEY,
         nombre VARCHAR(50) NOT NULL,
 		descripcion VARCHAR(100),
@@ -148,10 +160,10 @@ BEGIN
 		id_stock INT NULL,
 		id_temporada INT NULL,
 		id_proveedor INT NULL,
-        FOREIGN KEY (id_proveedor) REFERENCES ct.Proveedor(id_proveedor),
-        FOREIGN KEY (id_temporada) REFERENCES ct.Temporada(id_temporada),
-        FOREIGN KEY (id_stock) REFERENCES ct.Stock(id_stock),
-		FOREIGN KEY (id_categoria) REFERENCES ct.Categoria(id_categoria),
+        FOREIGN KEY (id_proveedor) REFERENCES proveedores.Proveedor(id_proveedor),
+        FOREIGN KEY (id_temporada) REFERENCES productos.Temporada(id_temporada),
+        FOREIGN KEY (id_stock) REFERENCES productos.Stock(id_stock),
+		FOREIGN KEY (id_categoria) REFERENCES productos.Categoria(id_categoria),
 		CONSTRAINT CK_Producto_TipoProducto CHECK (forma_comercializacion IN ('granel', 'unidad')),
 		CONSTRAINT CK_Producto_Tipo CHECK (tipo_producto_agricola IN ('hoja verde', 'tuberculo'))
         
@@ -164,9 +176,9 @@ GO
 -- 7. LISTA_PRECIO
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
-               WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'ListaPrecio')
+               WHERE TABLE_SCHEMA = 'proveedores' AND TABLE_NAME = 'ListaPrecio')
 BEGIN
-    CREATE TABLE ct.ListaPrecio (
+    CREATE TABLE proveedores.ListaPrecio (
 	id_ListaPrecio INT NOT NULL,
     id_producto INT NOT NULL,
     id_proveedor INT NOT NULL,
@@ -178,8 +190,8 @@ BEGIN
     CONSTRAINT CK_ListaPrecio_Formato 
         CHECK (formato IN ('json','csv')),
 
-    FOREIGN KEY (id_producto) REFERENCES ct.Producto(id_producto),
-    FOREIGN KEY (id_proveedor) REFERENCES ct.Proveedor(id_proveedor)
+    FOREIGN KEY (id_producto) REFERENCES productos.Producto(id_producto),
+    FOREIGN KEY (id_proveedor) REFERENCES proveedores.Proveedor(id_proveedor)
 );
 END
 GO
@@ -188,9 +200,9 @@ GO
 -- 8. LOTE
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
-               WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Lote')
+               WHERE TABLE_SCHEMA = 'productos' AND TABLE_NAME = 'Lote')
 BEGIN
-    CREATE TABLE ct.Lote (
+    CREATE TABLE productos.Lote (
         id_lote INT NOT NULL,
         id_producto INT NOT NULL,
         cantidad_inicial INT NOT NULL,
@@ -200,7 +212,7 @@ BEGIN
 
 		CONSTRAINT PK_Lote 
 			PRIMARY KEY (id_lote , id_producto ),
-        FOREIGN KEY (id_producto) REFERENCES ct.Producto(id_producto)
+        FOREIGN KEY (id_producto) REFERENCES productos.Producto(id_producto)
     );
 END
 GO
@@ -209,9 +221,9 @@ GO
 -- 9. CLIENTE
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
-               WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Cliente')
+               WHERE TABLE_SCHEMA = 'ventas' AND TABLE_NAME = 'Cliente')
 BEGIN
-    CREATE TABLE ct.Cliente (
+    CREATE TABLE ventas.Cliente (
         id_cliente INT IDENTITY(1,1) PRIMARY KEY,
         nombre VARCHAR(100),
         apellido VARCHAR(100),
@@ -230,9 +242,9 @@ GO
 -- 10. CAPACITADOR
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
-               WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Capacitador')
+               WHERE TABLE_SCHEMA = 'ventas' AND TABLE_NAME = 'Capacitador')
 BEGIN
-    CREATE TABLE ct.Capacitador (
+    CREATE TABLE ventas.Capacitador (
 		id_capacitador INT IDENTITY(1,1) PRIMARY KEY,
 		numero_registro VARCHAR(50) NOT NULL UNIQUE,  -- clave natural del padrón
 		nombre VARCHAR(150) NOT NULL,
@@ -249,9 +261,9 @@ GO
 -- 11. CERTIFICADO
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
-               WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Certificado')
+               WHERE TABLE_SCHEMA = 'ventas' AND TABLE_NAME = 'Certificado')
 BEGIN
-   CREATE TABLE ct.Certificado (
+   CREATE TABLE ventas.Certificado (
 		id_certificado INT IDENTITY(1,1) PRIMARY KEY,
 		id_capacitador INT NOT NULL,
 		fecha_capacitacion DATE NOT NULL,
@@ -261,7 +273,7 @@ BEGIN
 
 		CONSTRAINT FK_Certificado_Capacitador
 			FOREIGN KEY (id_capacitador)
-			REFERENCES ct.Capacitador(id_capacitador),
+			REFERENCES ventas.Capacitador(id_capacitador),
 
 		CONSTRAINT CK_Fecha_Vencimiento
 			CHECK (fecha_vencimiento IS NULL 
@@ -274,9 +286,9 @@ GO
 -- 12. VENDEDOR
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
-               WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Vendedor')
+               WHERE TABLE_SCHEMA = 'ventas' AND TABLE_NAME = 'Vendedor')
 BEGIN
-    CREATE TABLE ct.Vendedor (
+    CREATE TABLE ventas.Vendedor (
         id_vendedor INT NOT NULL,
         nombre VARCHAR(100) NOT NULL,
         apellido VARCHAR(100) NOT NULL,
@@ -284,8 +296,8 @@ BEGIN
 		id_certificado INT NOT NULL,
 		CONSTRAINT PK_vendedor 
 			PRIMARY KEY (id_vendedor, id_sucursal),
-        FOREIGN KEY (id_sucursal) REFERENCES ct.Sucursal(id_sucursal),
-		FOREIGN KEY (id_certificado) REFERENCES ct.Certificado(id_certificado)
+        FOREIGN KEY (id_sucursal) REFERENCES productos.Sucursal(id_sucursal),
+		FOREIGN KEY (id_certificado) REFERENCES ventas.Certificado(id_certificado)
 
     );
 END
@@ -297,9 +309,9 @@ GO
 -- 13. VENTA
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
-               WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Venta')
+               WHERE TABLE_SCHEMA = 'ventas' AND TABLE_NAME = 'Venta')
 BEGIN
-    CREATE TABLE ct.Venta (
+    CREATE TABLE ventas.Venta (
         id_venta INT IDENTITY(1,1) PRIMARY KEY,
         fecha DATETIME NOT NULL,
         modalidad VARCHAR(50) NOT NULL,
@@ -312,9 +324,9 @@ BEGIN
 			CHECK (modalidad IN ('presencial','domicilio')),
 		CONSTRAINT CK_canal_venta
 			CHECK (canal IN ('propio','plataforma')),
-        FOREIGN KEY (id_vendedor, id_sucursal) REFERENCES ct.Vendedor(id_vendedor, id_sucursal),
-		FOREIGN KEY (id_sucursal) REFERENCES ct.Sucursal(id_sucursal),
-        FOREIGN KEY (id_cliente) REFERENCES ct.Cliente(id_cliente)
+        FOREIGN KEY (id_vendedor, id_sucursal) REFERENCES ventas.Vendedor(id_vendedor, id_sucursal),
+		FOREIGN KEY (id_sucursal) REFERENCES productos.Sucursal(id_sucursal),
+        FOREIGN KEY (id_cliente) REFERENCES ventas.Cliente(id_cliente)
     );
 END
 GO
@@ -323,9 +335,9 @@ GO
 -- 14. DETALLE_VENTA
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
-               WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'DetalleVenta')
+               WHERE TABLE_SCHEMA = 'ventas' AND TABLE_NAME = 'DetalleVenta')
 BEGIN
-    CREATE TABLE ct.DetalleVenta (
+    CREATE TABLE ventas.DetalleVenta (
     id_venta INT NOT NULL,
     id_lote INT NOT NULL,
 	id_producto INT NOT NULL,
@@ -336,10 +348,10 @@ BEGIN
         PRIMARY KEY (id_venta),
 
     CONSTRAINT FK_DetalleVenta_Venta
-        FOREIGN KEY (id_venta) REFERENCES ct.Venta(id_venta),
+        FOREIGN KEY (id_venta) REFERENCES ventas.Venta(id_venta),
 
     FOREIGN KEY (id_lote, id_producto)
-		REFERENCES ct.Lote(id_lote, id_producto)
+		REFERENCES productos.Lote(id_lote, id_producto)
 );
 END
 GO
@@ -349,16 +361,16 @@ GO
 --Esta es la tabla productiva final. Es donde queda el histórico real.
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
-               WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'Merma')
+               WHERE TABLE_SCHEMA = 'importaciones' AND TABLE_NAME = 'Merma')
 BEGIN
-    CREATE TABLE ct.Merma (
+    CREATE TABLE importaciones.Merma (
         id_merma INT IDENTITY PRIMARY KEY,
         id_producto INT NOT NULL,
         id_sucursal INT NOT NULL,
         fecha DATE NOT NULL,
         cantidad INT NOT NULL,
-        FOREIGN KEY (id_producto) REFERENCES ct.Producto(id_producto),
-        FOREIGN KEY (id_sucursal) REFERENCES ct.Sucursal(id_sucursal),
+        FOREIGN KEY (id_producto) REFERENCES productos.Producto(id_producto),
+        FOREIGN KEY (id_sucursal) REFERENCES productos.Sucursal(id_sucursal),
         CONSTRAINT UQ_merma UNIQUE (id_producto, id_sucursal, fecha)
     );
 END
@@ -370,9 +382,9 @@ GO
 -- ==============================
 
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
-               WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'ErroresMermas')
+               WHERE TABLE_SCHEMA = 'importaciones' AND TABLE_NAME = 'ErroresMermas')
 BEGIN
-	   CREATE TABLE ct.ErroresMermas (
+	   CREATE TABLE importaciones.ErroresMermas (
 		fecha DATETIME DEFAULT GETDATE(),
 		descripcion VARCHAR(500),
 		fila_producto VARCHAR(200),
@@ -389,9 +401,9 @@ GO
 -- ==============================
 
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
-               WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'LogImportacionMermas')
+               WHERE TABLE_SCHEMA = 'importaciones' AND TABLE_NAME = 'LogImportacionMermas')
 BEGIN
-    CREATE TABLE ct.LogImportacionMermas(
+    CREATE TABLE importaciones.LogImportacionMermas(
         id_log INT IDENTITY PRIMARY KEY,
         fecha_importacion DATETIME DEFAULT GETDATE(),
         registros_staging INT,
@@ -407,9 +419,9 @@ GO
 --Esta es la tabla productiva final. Es donde queda el histórico real.
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
-               WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'EstimacionAgricola')
+               WHERE TABLE_SCHEMA = 'importaciones' AND TABLE_NAME = 'EstimacionAgricola')
 BEGIN
-    CREATE TABLE ct.EstimacionAgricola (
+    CREATE TABLE importaciones.EstimacionAgricola (
         id_estimacion INT IDENTITY PRIMARY KEY,
         cultivo VARCHAR(100) NOT NULL,
         campania VARCHAR(20) NOT NULL,
@@ -431,9 +443,9 @@ GO
 --Registra errores detectados durante el procesamiento.No afecta la tabla productiva.
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
-               WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'ErroresEstimaciones')
+               WHERE TABLE_SCHEMA = 'importaciones' AND TABLE_NAME = 'ErroresEstimaciones')
 BEGIN
-    CREATE TABLE ct.ErroresEstimaciones (
+    CREATE TABLE importaciones.ErroresEstimaciones (
         fecha DATETIME DEFAULT GETDATE(),
         descripcion VARCHAR(500),
         cultivo VARCHAR(200),
@@ -448,9 +460,9 @@ GO
 --Es la zona sucia. Aca entra el archivo con BULK INSERT.No tiene claves, no tiene restricciones.Es temporal.
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
-               WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'LogImportacionEstimaciones')
+               WHERE TABLE_SCHEMA = 'importaciones' AND TABLE_NAME = 'LogImportacionEstimaciones')
 BEGIN
-    CREATE TABLE ct.LogImportacionEstimaciones(
+    CREATE TABLE importaciones.LogImportacionEstimaciones(
         id_log INT IDENTITY PRIMARY KEY,
         fecha_importacion DATETIME DEFAULT GETDATE(),
         registros_staging INT,
@@ -466,9 +478,9 @@ GO
 --Registra errores detectados durante el procesamiento.No afecta la tabla productiva.
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
-               WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'ErroresCapacitadores')
+               WHERE TABLE_SCHEMA = 'importaciones' AND TABLE_NAME = 'ErroresCapacitadores')
 BEGIN
-    CREATE TABLE ct.ErroresCapacitadores (
+    CREATE TABLE importaciones.ErroresCapacitadores (
 		fecha DATETIME DEFAULT GETDATE(),
 		descripcion VARCHAR(500),
 		numero_registro VARCHAR(100)
@@ -484,9 +496,9 @@ GO
 --Es la zona sucia. Aca entra el archivo con BULK INSERT.No tiene claves, no tiene restricciones.Es temporal.
 -- ==============================
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
-               WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'LogImportacionCapacitadores')
+               WHERE TABLE_SCHEMA = 'importaciones' AND TABLE_NAME = 'LogImportacionCapacitadores')
 BEGIN
-    CREATE TABLE ct.LogImportacionCapacitadores(
+    CREATE TABLE importaciones.LogImportacionCapacitadores(
 		id_log INT IDENTITY PRIMARY KEY,
 		fecha_importacion DATETIME DEFAULT GETDATE(),
 		registros_staging INT,
@@ -502,9 +514,9 @@ GO
 -- ==============================
 
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
-               WHERE TABLE_SCHEMA = 'ct' AND TABLE_NAME = 'PrecioMayorista')
+               WHERE TABLE_SCHEMA = 'importaciones' AND TABLE_NAME = 'PrecioMayorista')
 BEGIN
-    CREATE TABLE ct.PrecioMayorista (
+    CREATE TABLE importaciones.PrecioMayorista (
     id_precio INT IDENTITY PRIMARY KEY,
 
     fecha DATE NOT NULL,
@@ -539,11 +551,11 @@ GO
 -- ==============================
 IF NOT EXISTS (
     SELECT * FROM INFORMATION_SCHEMA.TABLES 
-    WHERE TABLE_SCHEMA = 'ct' 
+    WHERE TABLE_SCHEMA = 'importaciones' 
     AND TABLE_NAME = 'ErroresPrecios'
 )
 BEGIN
-    CREATE TABLE ct.ErroresPrecios (
+    CREATE TABLE importaciones.ErroresPrecios (
         fecha DATETIME DEFAULT GETDATE(),
         descripcion VARCHAR(500),
         especie VARCHAR(200),
@@ -558,11 +570,11 @@ GO
 -- ==============================
 IF NOT EXISTS (
     SELECT * FROM INFORMATION_SCHEMA.TABLES 
-    WHERE TABLE_SCHEMA = 'ct' 
+    WHERE TABLE_SCHEMA = 'importaciones' 
     AND TABLE_NAME = 'LogImportacionPrecios'
 )
 BEGIN
-    CREATE TABLE ct.LogImportacionPrecios(
+    CREATE TABLE importaciones.LogImportacionPrecios(
         id_log INT IDENTITY PRIMARY KEY,
         fecha_importacion DATETIME DEFAULT GETDATE(),
         fecha_archivo DATE,
