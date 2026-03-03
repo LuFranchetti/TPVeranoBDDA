@@ -648,7 +648,7 @@ BEGIN
         SET @errores += 'La categoría indicada no existe.' + CHAR(13);
 
     IF (@id_proveedor IS NOT NULL AND 
-        NOT EXISTS (SELECT 1 FROM productos.Proveedor WHERE id_proveedor = @id_proveedor))
+        NOT EXISTS (SELECT 1 FROM proveedores.Proveedor WHERE id_proveedor = @id_proveedor))
         SET @errores += 'El proveedor indicado no existe.' + CHAR(13);
 
     IF (@id_temporada IS NOT NULL AND 
@@ -956,7 +956,7 @@ BEGIN
         RETURN;
     END;
 
-    DELETE FROM ct.Cliente
+    DELETE FROM ventas.Cliente
     WHERE id_cliente = @id_cliente;
 END
 GO
@@ -1147,7 +1147,7 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM productos.Sucursal WHERE id_sucursal = @id_sucursal)
         SET @errores += 'La sucursal no existe.' + CHAR(13);
 
-    IF NOT EXISTS (SELECT 1 FROM productos.Certificado WHERE id_certificado = @id_certificado)
+    IF NOT EXISTS (SELECT 1 FROM ventas.Certificado WHERE id_certificado = @id_certificado)
         SET @errores += 'El certificado no existe.' + CHAR(13);
 
     IF EXISTS (SELECT 1 FROM ventas.Vendedor 
@@ -1233,7 +1233,7 @@ BEGIN
         SET @errores += 'El vendedor no existe en esa sucursal.' + CHAR(13);
 
     IF (@id_cliente IS NOT NULL AND
-        NOT EXISTS (SELECT 1 FROM ct.Cliente WHERE id_cliente = @id_cliente))
+        NOT EXISTS (SELECT 1 FROM ventas.Cliente WHERE id_cliente = @id_cliente))
         SET @errores += 'El cliente no existe.' + CHAR(13);
 
     IF (@errores <> '')
@@ -1495,7 +1495,7 @@ BEGIN
     END
     ELSE
     BEGIN
-        INSERT INTO ct.Merma(id_producto, id_sucursal, fecha, cantidad)
+        INSERT INTO importaciones.Merma(id_producto, id_sucursal, fecha, cantidad)
         VALUES(@id_producto, @id_sucursal, @fecha, @cantidad);
     END
 END

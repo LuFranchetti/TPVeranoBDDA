@@ -57,13 +57,13 @@ BEGIN
                     SUM(dv.precio_unitario * dv.cantidad)
             END AS Margen_Porcentual
 
-        FROM ct.DetalleVenta dv
-        INNER JOIN ct.Lote l
+        FROM ventas.DetalleVenta dv
+        INNER JOIN productos.Lote l
             ON dv.id_lote = l.id_lote
            AND dv.id_producto = l.id_producto
-        INNER JOIN ct.Producto p
+        INNER JOIN productos.Producto p
             ON l.id_producto = p.id_producto
-        INNER JOIN ct.Categoria c
+        INNER JOIN productos.Categoria c
             ON p.id_categoria = c.id_categoria
 
         GROUP BY c.nombre
@@ -75,13 +75,6 @@ BEGIN
 END
 GO
 
-
-SELECT COUNT(*) 
-FROM ct.DetalleVenta;
-
-
--- Ejecución del reporte
-EXEC csp.ReporteRentabilidadXML;
 
 
 USE Com2343;
@@ -121,8 +114,8 @@ BEGIN
                 l.fecha_ingreso AS Fecha_Ingreso,
                 l.fecha_vencimiento AS Fecha_Vencimiento,
                 DATEDIFF(DAY, @fecha_base, l.fecha_vencimiento) AS Dias_Restantes
-            FROM ct.Lote l
-            INNER JOIN ct.Producto p
+            FROM productos.Lote l
+            INNER JOIN productos.Producto p
                 ON l.id_producto = p.id_producto
             WHERE l.fecha_vencimiento BETWEEN @fecha_base
                                           AND DATEADD(DAY, @dias, @fecha_base)
@@ -161,12 +154,12 @@ BEGIN
         c.nombre AS Categoria,
         pr.nombre + ' ' + pr.apellido AS Proveedor,
         AVG(pm.precio_mayorista) AS Precio_Promedio
-    FROM ct.PrecioMayorista pm
-    INNER JOIN ct.Producto p
+    FROM importaciones.PrecioMayorista pm
+    INNER JOIN productos.Producto p
         ON p.nombre = pm.especie
-    INNER JOIN ct.Categoria c
+    INNER JOIN productos.Categoria c
         ON p.id_categoria = c.id_categoria
-    INNER JOIN ct.Proveedor pr
+    INNER JOIN proveedores.Proveedor pr
         ON p.id_proveedor = pr.id_proveedor
     WHERE pm.fecha >= DATEADD(DAY, -30, @fecha_base)
     GROUP BY
@@ -203,16 +196,16 @@ BEGIN
             p.nombre AS Producto,
             s.nombre AS Sucursal,
             m.cantidad
-        FROM ct.Merma m
-        INNER JOIN ct.Producto p
+        FROM importaciones.Merma m
+        INNER JOIN productos.Producto p
             ON m.id_producto = p.id_producto
-        INNER JOIN ct.Sucursal s
+        INNER JOIN productos.Sucursal s
             ON m.id_sucursal = s.id_sucursal
     ) AS Fuente
     PIVOT
     (
         SUM(cantidad)
-        FOR Sucursal IN ([Sucursal Centro])
+        FOR Sucursal IN ([Sucursal Centro],[Sucursal Norte])
     ) AS TablaPivot;
 END
 GO
@@ -245,12 +238,12 @@ BEGIN
         ISNULL(SUM(l.cantidad_inicial), 0) AS Stock_Actual,
         st.stock_minimo AS Stock_Minimo,
         (st.stock_minimo - ISNULL(SUM(l.cantidad_inicial), 0)) AS Cantidad_A_Reponer
-    FROM ct.Stock st
-    INNER JOIN ct.Sucursal s
+    FROM productos.Stock st
+    INNER JOIN productos.Sucursal s
         ON st.id_sucursal = s.id_sucursal
-    INNER JOIN ct.Producto p
+    INNER JOIN productos.Producto p
         ON p.id_stock = st.id_stock
-    LEFT JOIN ct.Lote l
+    LEFT JOIN productos.Lote l
         ON l.id_producto = p.id_producto
     GROUP BY
         s.nombre,

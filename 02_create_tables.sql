@@ -340,18 +340,17 @@ BEGIN
     CREATE TABLE ventas.DetalleVenta (
     id_venta INT NOT NULL,
     id_lote INT NOT NULL,
-	id_producto INT NOT NULL,
+    id_producto INT NOT NULL,
     cantidad INT NOT NULL,
     precio_unitario DECIMAL(10,2) NOT NULL,
 
     CONSTRAINT PK_DetalleVenta 
-        PRIMARY KEY (id_venta),
+        PRIMARY KEY (id_venta, id_lote, id_producto),
 
-    CONSTRAINT FK_DetalleVenta_Venta
-        FOREIGN KEY (id_venta) REFERENCES ventas.Venta(id_venta),
+    FOREIGN KEY (id_venta) REFERENCES ventas.Venta(id_venta),
 
     FOREIGN KEY (id_lote, id_producto)
-		REFERENCES productos.Lote(id_lote, id_producto)
+        REFERENCES productos.Lote(id_lote, id_producto)
 );
 END
 GO
