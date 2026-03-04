@@ -1,0 +1,64 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# SQL Server Management Studio Solution File, Format Version 20.00
+VisualStudioVersion = 15.0.28307.421
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{4F2E2C19-372F-40D8-9FA7-9D2138C6997A}") = "Com2343_TP_BDDA", "Com2343_TP_BDDA\Com2343_TP_BDDA.ssmssqlproj", "{6FC1872F-F3AF-48C9-8E96-8D0F27B5002A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "01_DDL", "01_DDL", "{788CFB16-3CD4-4994-8CD1-11895005F203}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\..\Desktop\BDD Aplicada\2026\TPBDDA\01_create_database.sql = ..\..\..\Desktop\BDD Aplicada\2026\TPBDDA\01_create_database.sql
+		..\..\..\Desktop\BDD Aplicada\2026\TPBDDA\02_create_tables.sql = ..\..\..\Desktop\BDD Aplicada\2026\TPBDDA\02_create_tables.sql
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02_SP", "02_SP", "{187CB850-DB96-4D44-83D8-1407E8A4F678}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\..\Desktop\BDD Aplicada\2026\TPBDDA\03_create_stored_procedures.sql = ..\..\..\Desktop\BDD Aplicada\2026\TPBDDA\03_create_stored_procedures.sql
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "03_SeedData", "03_SeedData", "{0B9F09BD-A366-45B0-A38B-26CCE686A13C}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\..\Desktop\BDD Aplicada\2026\TPBDDA\04_import_file_sp_Mermas.sql = ..\..\..\Desktop\BDD Aplicada\2026\TPBDDA\04_import_file_sp_Mermas.sql
+		..\..\..\Desktop\BDD Aplicada\2026\TPBDDA\05_import_files_sp_capacitadores.sql = ..\..\..\Desktop\BDD Aplicada\2026\TPBDDA\05_import_files_sp_capacitadores.sql
+		..\..\..\Desktop\BDD Aplicada\2026\TPBDDA\06_import_files_sp_estimaciones.sql = ..\..\..\Desktop\BDD Aplicada\2026\TPBDDA\06_import_files_sp_estimaciones.sql
+		..\..\..\Desktop\BDD Aplicada\2026\TPBDDA\07_import_files_sp_frutas_hortalizas.sql = ..\..\..\Desktop\BDD Aplicada\2026\TPBDDA\07_import_files_sp_frutas_hortalizas.sql
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "05_Seguridad", "05_Seguridad", "{895324E9-22A3-4D74-9FD1-C4ED3D71EF60}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\..\Desktop\BDD Aplicada\2026\TPBDDA\10_API_clima.sql = ..\..\..\Desktop\BDD Aplicada\2026\TPBDDA\10_API_clima.sql
+		..\..\..\Desktop\BDD Aplicada\2026\TPBDDA\11_seguridad_y_respaldo.sql = ..\..\..\Desktop\BDD Aplicada\2026\TPBDDA\11_seguridad_y_respaldo.sql
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "04_Reportes", "04_Reportes", "{61F41582-B717-4BB7-A1AC-08BE89F2B66E}"
+	ProjectSection(SolutionItems) = preProject
+		08_datos_reporte.sql = 08_datos_reporte.sql
+		..\..\..\Desktop\BDD Aplicada\2026\TPBDDA\09_reportes.sql = ..\..\..\Desktop\BDD Aplicada\2026\TPBDDA\09_reportes.sql
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "06_Pruebas", "06_Pruebas", "{7DC3A9E0-4C01-40F9-A11C-FA4890B6C4F1}"
+	ProjectSection(SolutionItems) = preProject
+		test_api.sql = test_api.sql
+		..\..\..\Desktop\BDD Aplicada\2026\TPBDDA\test_criterios_aceptacion.sql = ..\..\..\Desktop\BDD Aplicada\2026\TPBDDA\test_criterios_aceptacion.sql
+		..\..\..\Desktop\BDD Aplicada\2026\TPBDDA\test_import_files.sql = ..\..\..\Desktop\BDD Aplicada\2026\TPBDDA\test_import_files.sql
+		..\..\..\Desktop\BDD Aplicada\2026\TPBDDA\test_reportes.sql = ..\..\..\Desktop\BDD Aplicada\2026\TPBDDA\test_reportes.sql
+		test_seguridad.sql = test_seguridad.sql
+		..\..\..\Desktop\BDD Aplicada\2026\TPBDDA\test_stored_procedures.sql = ..\..\..\Desktop\BDD Aplicada\2026\TPBDDA\test_stored_procedures.sql
+		test_to_be.sql = test_to_be.sql
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Default|Default = Default|Default
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6FC1872F-F3AF-48C9-8E96-8D0F27B5002A}.Default|Default.ActiveCfg = Default
+		{73ECC677-C700-4C44-B4CF-75B3CC95D365}.Default|Default.ActiveCfg = Default
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4BE28A1C-0E93-4144-B234-6481B141DD38}
+	EndGlobalSection
+EndGlobal
