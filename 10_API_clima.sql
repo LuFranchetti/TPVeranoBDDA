@@ -123,5 +123,3 @@ GO
 
 
 
---Ejecucion:
-EXEC csp.RecomendacionClimaXML;

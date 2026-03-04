@@ -189,7 +189,17 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    SELECT *
+    DECLARE @columnas NVARCHAR(MAX);
+    DECLARE @columnasISNULL NVARCHAR(MAX);
+    DECLARE @sql NVARCHAR(MAX);
+
+    SELECT 
+        @columnas = STRING_AGG(QUOTENAME(nombre), ','),
+        @columnasISNULL = STRING_AGG('ISNULL(' + QUOTENAME(nombre) + ',0) AS ' + QUOTENAME(nombre), ',')
+    FROM productos.Sucursal;
+
+    SET @sql = '
+    SELECT Producto, ' + @columnasISNULL + '
     FROM
     (
         SELECT 
@@ -205,11 +215,14 @@ BEGIN
     PIVOT
     (
         SUM(cantidad)
-        FOR Sucursal IN ([Sucursal Centro],[Sucursal Norte])
-    ) AS TablaPivot;
+        FOR Sucursal IN (' + @columnas + ')
+    ) AS TablaPivot
+    ORDER BY Producto;
+    ';
+
+    EXEC sp_executesql @sql;
 END
 GO
-
 
 
 USE Com2343;
